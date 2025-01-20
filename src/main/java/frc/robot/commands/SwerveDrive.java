@@ -37,14 +37,13 @@ public class SwerveDrive extends Command {
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive(
-    SwerveSubsystem swerveSubsystem,
-    VisionSubsystem visionSubsystem,
-    DoubleSupplier translationSupplier,
-    DoubleSupplier strafeSupplier,
-    DoubleSupplier rotationSupplier,
-    BooleanSupplier robotCentricSupplier,
-    BooleanSupplier backToggleSupplier
-  ) {
+      SwerveSubsystem swerveSubsystem,
+      VisionSubsystem visionSubsystem,
+      DoubleSupplier translationSupplier,
+      DoubleSupplier strafeSupplier,
+      DoubleSupplier rotationSupplier,
+      BooleanSupplier robotCentricSupplier,
+      BooleanSupplier backToggleSupplier) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.visionSubsystem = visionSubsystem;
     this.swerveSubsystem = swerveSubsystem;
@@ -69,18 +68,18 @@ public class SwerveDrive extends Command {
   public void execute() {
     if (backToggleSupplier.getAsBoolean() && this.backToggleInt == 0) {
       this.backToggleInt = 1;
-  }
+    }
 
-  if (this.backToggleInt == 1 && !backToggleSupplier.getAsBoolean()) {
+    if (this.backToggleInt == 1 && !backToggleSupplier.getAsBoolean()) {
       this.backToggleInt = 2;
     }
 
-  if (this.backToggleInt == 2 && backToggleSupplier.getAsBoolean()) {
+    if (this.backToggleInt == 2 && backToggleSupplier.getAsBoolean()) {
       this.backToggleInt = 3;
     }
 
-  if (this.backToggleInt == 3 && !backToggleSupplier.getAsBoolean()) {
-      this.backToggleInt = 0; 
+    if (this.backToggleInt == 3 && !backToggleSupplier.getAsBoolean()) {
+      this.backToggleInt = 0;
     }
 
     SmartDashboard.putNumber("Translation Supplier", translationSupplier.getAsDouble());
@@ -88,41 +87,37 @@ public class SwerveDrive extends Command {
     SmartDashboard.putNumber("Rotation Supplier", rotationSupplier.getAsDouble());
 
     if (backToggleInt == 0) {
-    this.rotationVal = rotationLimiter.calculate(
-      MathUtil.applyDeadband(rotationSupplier.getAsDouble(), Swerve.stickDeadband));
+      this.rotationVal = rotationLimiter.calculate(
+          MathUtil.applyDeadband(rotationSupplier.getAsDouble(), Swerve.stickDeadband));
       this.translationVal = translationLimiter.calculate(
-      MathUtil.applyDeadband(translationSupplier.getAsDouble(), Swerve.stickDeadband));
+          MathUtil.applyDeadband(translationSupplier.getAsDouble(), Swerve.stickDeadband));
       this.strafeVal = strafeLimiter.calculate(
-      MathUtil.applyDeadband(strafeSupplier.getAsDouble() * 1.25, Swerve.stickDeadband));
-    }
-    else if (backToggleInt == 2) {
-      if (visionSubsystem.getTXSwerve() > Constants.Vision.XDeadband || visionSubsystem.getTXSwerve() < -Constants.Vision.XDeadband) {
+          MathUtil.applyDeadband(strafeSupplier.getAsDouble() * 1.25, Swerve.stickDeadband));
+    } else if (backToggleInt == 2) {
+      if (visionSubsystem.getTXSwerve() > Constants.Vision.XDeadband
+          || visionSubsystem.getTXSwerve() < -Constants.Vision.XDeadband) {
         if (visionSubsystem.getTXSwerve() > Constants.Vision.XDeadband) {
-        this.visionTX = Constants.Vision.XDeadband;
+          this.visionTX = Constants.Vision.XDeadband;
+        } else if (visionSubsystem.getTXSwerve() < -Constants.Vision.XDeadband) {
+          this.visionTX = -Constants.Vision.XDeadband;
+        } else {
+          this.visionTX = visionSubsystem.getTXSwerve() * Constants.Vision.XProportionalGain;
         }
-          else if (visionSubsystem.getTXSwerve() < -Constants.Vision.XDeadband) {
-            this.visionTX = -Constants.Vision.XDeadband;
-          }
-            else {
-              this.visionTX = visionSubsystem.getTXSwerve() * Constants.Vision.XProportionalGain;
-            }
-      }
-      else {
+      } else {
         this.visionTX = Constants.Vision.XOffset;
       }
-      double visionOutput = (visionTX - Constants.Vision.XOffset)/Constants.Vision.XRange;
+      double visionOutput = (visionTX - Constants.Vision.XOffset) / Constants.Vision.XRange;
       this.rotationVal = rotationLimiter.calculate(
-      MathUtil.applyDeadband(visionOutput, Swerve.stickDeadband));
+          MathUtil.applyDeadband(visionOutput, Swerve.stickDeadband));
 
       this.translationVal = translationLimiter.calculate(visionSubsystem.getDistanceToSpeaker());
       this.strafeVal = 0.0;
     }
     swerveSubsystem.drive(
-      new Translation2d(-translationVal, strafeVal).times(Swerve.maxSpeed), 
-      this.rotationVal * Swerve.maxAngularVelocity, 
-      robotCentricSupplier.getAsBoolean(),
-      true
-    );
+        new Translation2d(-translationVal, strafeVal).times(Swerve.maxSpeed),
+        this.rotationVal * Swerve.maxAngularVelocity,
+        robotCentricSupplier.getAsBoolean(),
+        true);
 
     SmartDashboard.putNumber("Translation Val", translationVal);
     SmartDashboard.putNumber("Strafe Val", strafeVal);
@@ -132,7 +127,8 @@ public class SwerveDrive extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  }
 
   // Returns true when the command should end.
   @Override

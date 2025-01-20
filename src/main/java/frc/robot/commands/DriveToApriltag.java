@@ -4,9 +4,6 @@
 
 package frc.robot.commands;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,14 +23,15 @@ public class DriveToApriltag extends Command {
   private double visionTX;
 
   private SlewRateLimiter translationLimiter = new SlewRateLimiter(Swerve.kMaxTranslationAcceleration);
-  //private SlewRateLimiter strafeLimiter = new SlewRateLimiter(Swerve.kMaxStrafeAcceleration);
+  // private SlewRateLimiter strafeLimiter = new
+  // SlewRateLimiter(Swerve.kMaxStrafeAcceleration);
   private SlewRateLimiter rotationLimiter = new SlewRateLimiter(Swerve.kMaxRotationAcceleration);
 
   /** Creates a new SwerveDrive. */
   public DriveToApriltag(
-    SwerveSubsystem swerveSubsystem,
-    VisionSubsystem visionSubsystem
-    //boolean targetLocation
+      SwerveSubsystem swerveSubsystem,
+      VisionSubsystem visionSubsystem
+  // boolean targetLocation
   ) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.visionSubsystem = visionSubsystem;
@@ -53,59 +51,56 @@ public class DriveToApriltag extends Command {
     int targetLocation;
     if (visionSubsystem.isThereATarget() == true) {
 
-      if (visionSubsystem.getApriltagId() == 7 || visionSubsystem.getApriltagId() == 4 || visionSubsystem.getApriltagId() == 3 || visionSubsystem.getApriltagId() == 8){
+      if (visionSubsystem.getApriltagId() == 7 || visionSubsystem.getApriltagId() == 4
+          || visionSubsystem.getApriltagId() == 3 || visionSubsystem.getApriltagId() == 8) {
         targetLocation = 1;
-      } else if (visionSubsystem.getApriltagId() == 6 || visionSubsystem.getApriltagId() == 5){
-        targetLocation = 3;//change later if add amp
+      } else if (visionSubsystem.getApriltagId() == 6 || visionSubsystem.getApriltagId() == 5) {
+        targetLocation = 3;// change later if add amp
       } else {
         targetLocation = 3;
       }
 
-      if (visionSubsystem.getTXSwerve() > Constants.Vision.XDeadband || visionSubsystem.getTXSwerve() < -Constants.Vision.XDeadband) {
+      if (visionSubsystem.getTXSwerve() > Constants.Vision.XDeadband
+          || visionSubsystem.getTXSwerve() < -Constants.Vision.XDeadband) {
         if (visionSubsystem.getTXSwerve() > Constants.Vision.XRange) {
           this.visionTX = Constants.Vision.XRange;
         }
         if (visionSubsystem.getTXSwerve() < -Constants.Vision.XRange) {
           this.visionTX = -Constants.Vision.XRange;
+        } else {
+          this.visionTX = visionSubsystem.getTXSwerve();
         }
-        else {
-         this.visionTX = visionSubsystem.getTXSwerve();
-        }
-    }
-      else {
+      } else {
         this.visionTX = Constants.Vision.XOffset;
       }
 
-      double visionXOutput = (visionTX - Constants.Vision.XOffset)/Constants.Vision.XRange;
+      double visionXOutput = (visionTX - Constants.Vision.XOffset) / Constants.Vision.XRange;
       this.rotationVal = rotationLimiter.calculate(visionXOutput);
 
       if (targetLocation == 1) {
         this.translationVal = translationLimiter.calculate(visionSubsystem.getDistanceToSpeaker());
-      } else if ( targetLocation == 2) {
+      } else if (targetLocation == 2) {
         this.translationVal = translationLimiter.calculate(visionSubsystem.getLimelightSpeed());
       } else {
         this.translationVal = 0;
         this.rotationVal = rotationLimiter.calculate(Constants.Vision.findAprilTagTurnSpeed);
       }
 
-      
       this.strafeVal = 0.0;
 
-    swerveSubsystem.drive(
-      new Translation2d(this.translationVal, this.strafeVal).times(Swerve.maxSpeed), 
-      this.rotationVal * Swerve.maxAngularVelocity, 
-      false,
-      false
-    );
+      swerveSubsystem.drive(
+          new Translation2d(this.translationVal, this.strafeVal).times(Swerve.maxSpeed),
+          this.rotationVal * Swerve.maxAngularVelocity,
+          false,
+          false);
 
-  } else {
-    swerveSubsystem.drive(
-      new Translation2d(0.0, 0.0).times(Swerve.maxSpeed), 
-      0.1 * Swerve.maxAngularVelocity, 
-      false,
-      false
-    );
-  }
+    } else {
+      swerveSubsystem.drive(
+          new Translation2d(0.0, 0.0).times(Swerve.maxSpeed),
+          0.1 * Swerve.maxAngularVelocity,
+          false,
+          false);
+    }
 
     SmartDashboard.putNumber("Translation Val", this.translationVal);
     SmartDashboard.putNumber("Strafe Val", this.strafeVal);
@@ -114,7 +109,8 @@ public class DriveToApriltag extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  }
 
   // Returns true when the command should end.
   @Override

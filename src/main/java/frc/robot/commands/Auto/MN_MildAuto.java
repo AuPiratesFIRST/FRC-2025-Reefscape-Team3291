@@ -19,8 +19,6 @@ import frc.robot.Constants;
 import frc.robot.subsystems.SwerveSubsystem;
 import java.util.List;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
@@ -30,34 +28,32 @@ public class MN_MildAuto extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
 
-    TrajectoryConfig config = //needs to be actually configured- either wait for the actual robot to be built or use sysid now, no harm done in the end really
-    new TrajectoryConfig(
+    TrajectoryConfig config = // needs to be actually configured- either wait for the actual robot to be built
+                              // or use sysid now, no harm done in the end really
+        new TrajectoryConfig(
             Constants.AutoConstants.kMaxSpeedMetersPerSecond,
             Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-        .setKinematics(Constants.Swerve.swerveKinematics);
+            .setKinematics(Constants.Swerve.swerveKinematics);
 
-    // An example trajectory to follow.  All units in meters.
-    Trajectory exampleTrajectory =
-        TrajectoryGenerator.generateTrajectory(
-            // Start at the origin facing the +X direction
-            new Pose2d(0, 0, new Rotation2d(0)),
-            // Pass through an interior waypoint
-            List.of(new Translation2d(0.5, 0)),
-            // End 1 meter straight ahead of where we started, facing forward
-            new Pose2d(1.2, 0, new Rotation2d(0)),
-            config);
+    // An example trajectory to follow. All units in meters.
+    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+        // Start at the origin facing the +X direction
+        new Pose2d(0, 0, new Rotation2d(0)),
+        // Pass through an interior waypoint
+        List.of(new Translation2d(0.5, 0)),
+        // End 1 meter straight ahead of where we started, facing forward
+        new Pose2d(1.2, 0, new Rotation2d(0)),
+        config);
 
-    ProfiledPIDController thetaController =
-      new ProfiledPIDController(
-      Constants.AutoConstants.kPThetaController,
-      0,
-      0,
-      Constants.AutoConstants.kThetaControllerConstraints);
-      thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    ProfiledPIDController thetaController = new ProfiledPIDController(
+        Constants.AutoConstants.kPThetaController,
+        0,
+        0,
+        Constants.AutoConstants.kThetaControllerConstraints);
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    SwerveControllerCommand swerveControllerCommand =
-      new SwerveControllerCommand(
-        exampleTrajectory,//not the issue
+    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+        exampleTrajectory, // not the issue
         s_sSwerve::getPose,
         Constants.Swerve.swerveKinematics,
         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -67,8 +63,8 @@ public class MN_MildAuto extends SequentialCommandGroup {
         s_sSwerve);
 
     addCommands(
-      new InstantCommand(() -> s_sSwerve.resetPoseEstimator(exampleTrajectory.getInitialPose())),
-      swerveControllerCommand);
+        new InstantCommand(() -> s_sSwerve.resetPoseEstimator(exampleTrajectory.getInitialPose())),
+        swerveControllerCommand);
   }
-    
-  }
+
+}

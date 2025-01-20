@@ -14,22 +14,21 @@ public class SwerveModuleConstants {
     /**
      * Swerve Module Constants to be used when creating swerve modules.
      * 
-     * @param driveMotorId  Drive motor CAN device ID or PWM port number
-     * @param angleMotorId  Angle motor CAN device ID or PWM port number
-     * @param canCoderId    CANCoder encoder CAN device ID
-     * @param angleOffset   Wheel starting angle
+     * @param driveMotorId Drive motor CAN device ID or PWM port number
+     * @param angleMotorId Angle motor CAN device ID or PWM port number
+     * @param canCoderId   CANCoder encoder CAN device ID
+     * @param angleOffset  Wheel starting angle
      */
     public SwerveModuleConstants(
-        int driveMotorId,
-        int angleMotorId,
-        int canCoderId,
-        Rotation2d angleOffset,
-        double angleMultiplier
-    ) {
+            int driveMotorId,
+            int angleMotorId,
+            int canCoderId,
+            Rotation2d angleOffset,
+            double angleMultiplier) {
         this.driveMotorId = driveMotorId;
         this.angleMotorId = angleMotorId;
-        this.canCoderId   = canCoderId;
-        this.angleOffset  = angleOffset;
+        this.canCoderId = canCoderId;
+        this.angleOffset = angleOffset;
         this.angleMultiplier = angleMultiplier;
     }
 }
