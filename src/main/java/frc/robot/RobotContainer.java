@@ -25,17 +25,17 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.Swerve;
-import frc.robot.commands.ColorChangingCMD;
-import frc.robot.commands.DriveToApriltag;
-import frc.robot.commands.SwerveDrive;
-import frc.robot.commands.Auto.MN_MildAuto;
-import frc.robot.subsystems.PreferencesSubsystem;
-import frc.robot.subsystems.SwerveSubsystem;
+//import frc.robot.commands.DriveToApriltag;
+import frc.robot.commands.AprilTagTest;
+import frc.robot.commands.Auto.nothing;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.ColorChanger;
 
-
-
+// import frc.robot.commands.ColorChangingCMD;
+// import frc.robot.commands.SwerveDrive;
+// import frc.robot.commands.Auto.MN_MildAuto;
+// import frc.robot.subsystems.PreferencesSubsystem;
+// import frc.robot.subsystems.SwerveSubsystem;
+// import frc.robot.subsystems.ColorChanger;
 
 
 /**
@@ -47,7 +47,7 @@ import frc.robot.subsystems.ColorChanger;
 public class RobotContainer {
 
 
-private final SendableChooser<Command> autoChooser;
+private final SendableChooser<String> autoChooser = new SendableChooser<>();
   //controllers
   public CommandJoystick controller0 = new CommandJoystick(0);
   public CommandJoystick controller1 = new CommandJoystick(1);
@@ -61,16 +61,16 @@ private final SendableChooser<Command> autoChooser;
 
 
   //subsystems
-  public PreferencesSubsystem preferencesSubsystem = new PreferencesSubsystem();
+  //public PreferencesSubsystem preferencesSubsystem = new PreferencesSubsystem();
   public VisionSubsystem visionSubsystem = new VisionSubsystem();
-  public ColorChanger colorChanger = new ColorChanger();
-  private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  //public ColorChanger colorChanger = new ColorChanger();
+  //private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   //commands
 
   //Vision
-  public DriveToApriltag driveToApriltag = new DriveToApriltag(swerveSubsystem, visionSubsystem);
-  
+  //public DriveToApriltag driveToApriltag = new DriveToApriltag(swerveSubsystem, visionSubsystem);
+  public AprilTagTest aprilTagTest = new AprilTagTest(visionSubsystem);
  
   //subsystems\\
 
@@ -80,8 +80,8 @@ private final SendableChooser<Command> autoChooser;
  // Subsystem initialization
     
         // Register Named Commands
-        NamedCommands.registerCommand("ColorChangingCMD", new ColorChangingCMD(colorChanger));
-        NamedCommands.registerCommand("DriveToApriltag", new DriveToApriltag(swerveSubsystem, visionSubsystem));
+        //NamedCommands.registerCommand("ColorChangingCMD", new ColorChangingCMD(colorChanger));
+        //NamedCommands.registerCommand("DriveToApriltag", new DriveToApriltag(swerveSubsystem, visionSubsystem));
 
     configureBindings();
 
@@ -90,13 +90,12 @@ private final SendableChooser<Command> autoChooser;
 
     //Controller1
 
-    //controller1.button(Constants.buttonList.start).whileTrue(driveToApriltag);
+    controller1.button(Constants.buttonList.a).onTrue(aprilTagTest);
    
     //Autonomous
-    autoChooser = AutoBuilder.buildAutoChooser();
-
+   // autoChooser = AutoBuilder.buildAutoChooser();
     
-  SmartDashboard.putData("AutoChooser", autoChooser);
+  //SmartDashboard.putData("AutoChooser", autoChooser);
 
   }
 
@@ -112,17 +111,17 @@ private final SendableChooser<Command> autoChooser;
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    swerveSubsystem.setDefaultCommand(
-      new SwerveDrive(
-        swerveSubsystem,
-        visionSubsystem,
-        () -> controller0.getRawAxis(1),
-        () -> -controller0.getRawAxis(0),
-        () -> controller0.getRawAxis(4),
-        () -> robotCentricButton.getAsBoolean(),
-        () -> backToggleButton.getAsBoolean()
-      )
-    );
+    //swerveSubsystem.setDefaultCommand(
+    //  new SwerveDrive(
+    //    swerveSubsystem,
+    //    visionSubsystem,
+    //    () -> controller0.getRawAxis(1),
+    //   () -> -controller0.getRawAxis(0),
+    //    () -> controller0.getRawAxis(4),
+    //    () -> robotCentricButton.getAsBoolean(),
+    //    () -> backToggleButton.getAsBoolean()
+    //  )
+    //);
 
   }
                                                                                              
@@ -130,7 +129,7 @@ private final SendableChooser<Command> autoChooser;
     // TODO Auto-generated method stub
    
     //return new PathPlannerAuto("Launch Auto");
-    return autoChooser.getSelected();
+    return new nothing();
     //return new MildAuto(swerveSubsystem);
   }
   /**

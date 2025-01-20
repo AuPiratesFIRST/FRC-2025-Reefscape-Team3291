@@ -13,8 +13,8 @@ import frc.robot.subsystems.LimelightHelpers;
 import frc.robot.subsystems.LimelightHelpers.LimelightResults;
 import frc.robot.subsystems.LimelightHelpers.LimelightTarget_Fiducial;
 
-//import com.revrobotics.CANSparkLowLevel.MotorType;
-//import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -37,7 +37,7 @@ public class VisionSubsystem extends SubsystemBase {
     public PIDController AimvisionPID;
         public PIDController distancePID;
 
-   // public CANSparkMax testMotor;
+    public SparkMax testMotor;
 
     public  NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
@@ -51,6 +51,8 @@ public class VisionSubsystem extends SubsystemBase {
     NetworkTableEntry ty = table.getEntry("ty");
     NetworkTableEntry ta = table.getEntry("ta");
     NetworkTableEntry targetpose_cameraspace = table.getEntry("targetpose_cameraspace");
+
+    testMotor = new SparkMax(22, MotorType.kBrushless);
     
     //read values periodically
     double x = tx.getDouble(0.0);
@@ -98,6 +100,7 @@ public double proportionalAiming() {
   public double getLimelightSpeed() {    
     double kP = .1;
     double targetingForwardSpeed = LimelightHelpers.getTY("limelight") * kP;
+    SmartDashboard.putNumber("TY", LimelightHelpers.getTY("limelight"));//checking the value
     targetingForwardSpeed *= -1.0;
     return targetingForwardSpeed;
   }
@@ -180,9 +183,16 @@ public double proportionalAiming() {
   public double getApriltagId() {
 
     double id = LimelightHelpers.getFiducialID("limelight");
+    SmartDashboard.putNumber("ID", id);
     return id;
 
   }
+
+  public void setMotor(double value){
+
+    testMotor.set(value);
+
+  };
 
   
   @Override
