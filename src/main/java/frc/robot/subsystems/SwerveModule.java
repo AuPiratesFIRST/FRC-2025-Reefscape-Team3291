@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.Preferences;
+
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -90,12 +92,17 @@ public class SwerveModule {
 
         // This is the offset of the wheel in relation to the 0 position of the CANCoder.
         this.angleOffset  = moduleConstants.angleOffset;
-
+        double angleKP = Swerve.angleKP;
+        Preferences.initDouble("angleKP", angleKP);
+        double angleKI = Swerve.angleKI;
+        Preferences.initDouble("angleKI", angleKI);
+        double angleKD = Swerve.angleKD;
+        Preferences.initDouble("angleKD", angleKD);
         // Initializing the angle motor PID Controller with PID values
         this.anglePid = new PIDController(
-            Swerve.angleKP,
-            Swerve.angleKI,
-            Swerve.angleKD
+            angleKP,
+            angleKI,
+            angleKD
         );
 
         this.drivePid = new PIDController(
