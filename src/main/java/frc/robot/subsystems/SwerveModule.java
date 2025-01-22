@@ -193,9 +193,8 @@ public class SwerveModule {
         // When the motor isn't being used, set to brake mode
         this.angleConfig.idleMode(IdleMode.kBrake);
 
-        // Set the conversion factor for position of the encoder. Multiplied by the
-        // native output units to give you position.
-        // this.integratedAngleEncoder.setPositionConversionFactor(Swerve.angleConversionFactor);
+        // Set the conversion factor for position of the encoder. Multiplied by the native output units to give you position.
+        this.angleConfig.encoder.positionConversionFactor(Swerve.angleConversionFactor);
 
         // Sets the voltage compensation setting for all modes on the SPARK and enables
         // voltage compensation.
@@ -280,13 +279,11 @@ public class SwerveModule {
     private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop, boolean invertDriveMotor) {
         // If we are in open loop mode, set the drive motor to the desired speed
         // if (isOpenLoop) {
-        double driveValue = (desiredState.speedMetersPerSecond / Swerve.maxSpeed);
-        driveValue = drivePid.calculate(driveEncoder.getVelocity(), desiredState.speedMetersPerSecond);
-        // driveValue = feedForward.calculate(desiredState.speedMetersPerSecond/2) +
-        // drivePid.calculate(driveEncoder.getVelocity(),
-        // desiredState.speedMetersPerSecond/2);
-        driveValue = invertDriveMotor ? driveValue * -1 : driveValue;
-        driveMotor.set(driveValue);
+            double driveValue = (desiredState.speedMetersPerSecond / Swerve.maxSpeed);
+            //driveValue = drivePid.calculate(driveEncoder.getVelocity(), desiredState.speedMetersPerSecond);
+            //driveValue = feedForward.calculate(desiredState.speedMetersPerSecond/2) + drivePid.calculate(driveEncoder.getVelocity(), desiredState.speedMetersPerSecond/2);
+            driveValue = invertDriveMotor ? driveValue * -1 : driveValue;
+            driveMotor.set(driveValue);
         // } else {
         // // If we are in closed loop mode, set the drive motor to the desired speed
         // this.driveMotor.set(
