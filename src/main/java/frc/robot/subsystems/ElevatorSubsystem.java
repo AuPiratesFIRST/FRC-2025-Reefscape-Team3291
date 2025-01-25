@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,14 +14,14 @@ import frc.robot.Constants;
 public class ElevatorSubsystem extends SubsystemBase {
   /** Creates a new ElevatorSubsystem. */
 
-  public CANSparkMax leftmotor;
-  public CANSparkMax rightmotor;
+  public SparkMax leftmotor;
+  public SparkMax rightmotor;
   //public ColorChanger colorChanger;
   
-  public ClimberSubsystem() {
+  public ElevatorSubsystem() {
     
-    this.leftmotor = new CANSparkMax(2, MotorType.kBrushless);//
-    this.rightmotor = new CANSparkMax(1, MotorType.kBrushless);//
+    this.leftmotor = new SparkMax(2, MotorType.kBrushless);//
+    this.rightmotor = new SparkMax(1, MotorType.kBrushless);//
     //this.colorChanger = new ColorChanger();
    
   }
@@ -30,7 +30,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
   }
 
-public void setClimberIndividual(double positiveSpeed, double negativeSpeed) {
+public void setElevatorIndividual(double positiveSpeed, double negativeSpeed) {
  leftmotor.set(-positiveSpeed); 
  rightmotor.set(-negativeSpeed);
 }

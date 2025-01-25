@@ -10,25 +10,24 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.ColorChanger;
 
 
-public class ClimbCMD extends Command {
+public class ElevatorCMD extends Command {
   /** Creates a new MoveIntakeMotorCMD. */
   //ColorChanger colorChanger;
   ElevatorSubsystem elevatorSubsystem;
   DoubleSupplier positiveSupplier;
   DoubleSupplier negativeSupplier;
-  public ClimbCMD(
-    ClimberSubsystem climberSubsystem,
+  public ElevatorCMD(
+    ElevatorSubsystem elevatorSubsystem,
     //ColorChanger colorChanger,
     DoubleSupplier positiveSupplier,
-    DoubleSupplier negativeSupplier,
+    DoubleSupplier negativeSupplier
   ) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.elevatorSubsystem = elevatorSubsystem;
     //this.colorChanger = colorChanger;
-    addRequirements(climberSubsystem, colorChanger);
+    addRequirements(elevatorSubsystem);
 
     this.positiveSupplier = positiveSupplier;
     this.negativeSupplier = negativeSupplier;
