@@ -26,9 +26,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.Swerve;
 //import frc.robot.commands.DriveToApriltag;
-import frc.robot.commands.AprilTagTest;
+//import frc.robot.commands.AprilTagTest;
 import frc.robot.commands.Auto.nothing;
-import frc.robot.subsystems.VisionSubsystem;
+//import frc.robot.subsystems.VisionSubsystem;
 
 // import frc.robot.commands.ColorChangingCMD;
 // import frc.robot.commands.SwerveDrive;
@@ -62,7 +62,7 @@ private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
   //subsystems
   //public PreferencesSubsystem preferencesSubsystem = new PreferencesSubsystem();
-  public VisionSubsystem visionSubsystem = new VisionSubsystem();
+  //public VisionSubsystem visionSubsystem = new VisionSubsystem();
   //public ColorChanger colorChanger = new ColorChanger();
   //private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
@@ -70,7 +70,7 @@ private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
   //Vision
   //public DriveToApriltag driveToApriltag = new DriveToApriltag(swerveSubsystem, visionSubsystem);
-  public AprilTagTest aprilTagTest = new AprilTagTest(visionSubsystem);
+  //public AprilTagTest aprilTagTest = new AprilTagTest(visionSubsystem);
  
   //subsystems\\
 
@@ -90,7 +90,7 @@ private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
     //Controller1
 
-    controller1.button(Constants.buttonList.a).onTrue(aprilTagTest);
+    //controller1.button(Constants.buttonList.a).onTrue(aprilTagTest);
    
     //Autonomous
    // autoChooser = AutoBuilder.buildAutoChooser();
