@@ -6,11 +6,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Auto.nothing;
-//import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.commands.RunMotorWithAprilTag;
+import frc.robot.subsystems.RunMotorSub;
+import frc.robot.subsystems.VisionSubsystem;
 
 // import frc.robot.commands.ColorChangingCMD;
 // import frc.robot.commands.SwerveDrive;
@@ -34,13 +34,19 @@ public class RobotContainer {
 
     //buttons
     public final JoystickButton backToggleButton = new JoystickButton(controller0.getHID(), Constants.buttonList.back);
-    public final JoystickButton aToggleButton = new JoystickButton(controller1.getHID(), Constants.buttonList.a);
+    //public final JoystickButton aToggleButton = new JoystickButton(controller1.getHID(), Constants.buttonList.a);
     public final JoystickButton colorToggleButton = new JoystickButton(controller1.getHID(), Constants.buttonList.l3);
     public final JoystickButton robotCentricButton = new JoystickButton(controller0.getHID(), Constants.buttonList.r3);
 
     //subsystems
     //public PreferencesSubsystem preferencesSubsystem = new PreferencesSubsystem();
-    //public VisionSubsystem visionSubsystem = new VisionSubsystem();
+    public VisionSubsystem visionSubsystem = new VisionSubsystem();
+    public RunMotorSub runMotorSub = new RunMotorSub();
+
+    private final RunMotorWithAprilTag runMotorWithAprilTag = new RunMotorWithAprilTag(
+            runMotorSub,
+            () -> 0.5 // Example: Getting speed from joystick Y-axis
+    );
     //public ColorChanger colorChanger = new ColorChanger();
     //private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
     //commands
@@ -52,6 +58,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and
      * commands.
      */
+
     public RobotContainer() {
         // Subsystem initialization
 
@@ -61,14 +68,16 @@ public class RobotContainer {
         configureBindings();
 
         //Controller 0
+        controller0.button(Constants.buttonList.b).whileTrue(runMotorWithAprilTag);
+        controller1.button(Constants.buttonList.b).whileTrue(runMotorWithAprilTag);
+
         //Controller1
-        //controller1.button(Constants.buttonList.a).onTrue(aprilTagTest);
         //Autonomous
         // autoChooser = AutoBuilder.buildAutoChooser();
         //SmartDashboard.putData("AutoChooser", autoChooser);
     }
 
-    /**
+    /*
      * Use this method to define your trigger->command mappings. Triggers can be
      * created via the
      * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor
