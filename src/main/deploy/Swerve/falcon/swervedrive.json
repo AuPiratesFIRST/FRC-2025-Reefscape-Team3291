@@ -3,9 +3,9 @@
   "imu": {
     "type": "navx_usb",
     "id": 0,
-    "canbus": null
+    "canbus": "canivore"
   },
-  "invertedIMU": true,
+  "invertedIMU": false,
   "modules": [
     "frontleft.json",
     "frontright.json",
