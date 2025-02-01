@@ -45,7 +45,7 @@ public class RobotContainer {
 
     private final RunMotorWithAprilTag runMotorWithAprilTag = new RunMotorWithAprilTag(
             runMotorSub,
-            () -> 0.5 // Example: Getting speed from joystick Y-axis
+            () -> 2 // Example: Getting speed from joystick Y-axis
     );
     //public ColorChanger colorChanger = new ColorChanger();
     //private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
@@ -68,8 +68,8 @@ public class RobotContainer {
         configureBindings();
 
         //Controller 0
-        controller0.button(Constants.buttonList.b).whileTrue(runMotorWithAprilTag);
-        controller1.button(Constants.buttonList.b).whileTrue(runMotorWithAprilTag);
+        controller0.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag);
+        controller1.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag);
 
         //Controller1
         //Autonomous
