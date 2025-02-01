@@ -12,14 +12,14 @@ public class VisionSubsystem {
         boolean hasTarget = LimelightHelpers.getTargetCount("limelight") > 0;
         double xOffset = LimelightHelpers.getTX("limelight");
         double yOffset = LimelightHelpers.getTY("limelight");
-        double distance = LimelightHelpers.getDistance("");
-        double tagID = LimelightHelpers.getTagID("");
+        //double distance = LimelightHelpers.getDistance("limelight");
+        double tagID = LimelightHelpers.getFiducialID("limelight");
 
         // Send data to NetworkTables
         limelight.getEntry("tv").setDouble(hasTarget ? 1.0 : 0.0);
         limelight.getEntry("tx").setDouble(xOffset);
         limelight.getEntry("ty").setDouble(yOffset);
-        limelight.getEntry("tz").setDouble(distance);
+        //limelight.getEntry("tz").setDouble(distance);
         limelight.getEntry("tid").setDouble(tagID);
     }
 }
