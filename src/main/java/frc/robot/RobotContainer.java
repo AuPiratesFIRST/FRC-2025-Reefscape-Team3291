@@ -128,6 +128,8 @@ private final DriveToAprilTagCommand driveToAprilTagCommand = new DriveToAprilTa
     //Controller 0
     controller0.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag);
     controller1.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag);
+    controller0.button(Constants.buttonList.b).whileTrue(driveToAprilTagCommand);
+    controller1.button(Constants.buttonList.b).whileTrue(driveToAprilTagCommand);
   }
 
   /**
