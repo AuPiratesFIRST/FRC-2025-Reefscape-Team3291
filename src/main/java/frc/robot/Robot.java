@@ -2,11 +2,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.VisionSubsystem;
+//import frc.robot.subsystems.VisionSubsystem;
 
 public class Robot extends TimedRobot {
 
-    private final VisionSubsystem visionSubsystem = new VisionSubsystem();
+    //private final VisionSubsystem visionSubsystem = new VisionSubsystem();
     private RobotContainer m_robotcontainer;
 
     @Override
@@ -25,6 +25,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         // Update Limelight data in NetworkTables
-        visionSubsystem.updateLimelightData();
+        //visionSubsystem.updateLimelightData();
     }
 }

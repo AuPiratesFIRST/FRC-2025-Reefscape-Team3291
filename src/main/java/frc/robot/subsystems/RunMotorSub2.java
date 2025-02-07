@@ -6,16 +6,15 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.LimelightHelpers;
-import frc.robot.subsystems.LimelightHelpers.LimelightResults;
 
-public class RunMotorSub extends SubsystemBase {
+public class RunMotorSub2 extends SubsystemBase {
 
     private final SparkMax motor;
-    public LimelightResults limelight = LimelightHelpers.getLatestResults("limelight-front");
+    private NetworkTable limelightTable;
 
-    public RunMotorSub() {
-        motor = new SparkMax(22, MotorType.kBrushless);
+    public RunMotorSub2() {
+        motor = new SparkMax(26, MotorType.kBrushless);
+    limelightTable = NetworkTableInstance.getDefault().getTable("limelight-back");
     }
 
     @Override
@@ -24,8 +23,8 @@ public class RunMotorSub extends SubsystemBase {
     }
 
     public void runMotor(double speed) {
-    double tagID = LimelightHelpers.getFiducialID("limelight-front");
-        motor.setVoltage(tagID == 1 ? speed : 0);
+    double tagID = limelightTable.getEntry("tid").getDouble(-1);
+        motor.setVoltage(tagID == 22 ? speed : 0);
     }
 
     public void stop() {
