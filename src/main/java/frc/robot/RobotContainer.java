@@ -25,12 +25,18 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.RunMotorWithAprilTag;
 import frc.robot.commands.RunMotorWithAprilTag2;
 import frc.robot.commands.Auto.nothing;
+import frc.robot.subsystems.LimelightHelpers;
 //import frc.robot.subsystems.LimelightHelpers;
 import frc.robot.subsystems.RunMotorSub;
 import frc.robot.subsystems.RunMotorSub2;
+import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 //import frc.robot.subsystems.SwerveSubsystem;
 //import frc.robot.subsystems.VisionSubsystem;
 //import swervelib.SwerveInputStream;
+import frc.robot.commands.DriveToAprilTagCommand;
+import frc.robot.commands.DriveToAprilTagCommandDistance;
+import frc.robot.commands.DriveToAprilTagCommandSimple;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -42,10 +48,15 @@ public class RobotContainer
     public CommandJoystick controller0 = new CommandJoystick(0);
     public CommandJoystick controller1 = new CommandJoystick(1);
 
-//public VisionSubsystem visionSubsystem = new VisionSubsystem();
+public VisionSubsystem visionSubsystem = new VisionSubsystem();
+public LimelightHelpers limelightHelpers = new LimelightHelpers();
+public SwerveSubsystem swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/neo"));
 public RunMotorSub runMotorSub = new RunMotorSub();
 public RunMotorSub2 runMotorSub2 = new RunMotorSub2();
 public nothing nothing = new nothing();
+public DriveToAprilTagCommand driveToAprilTagCommand = new DriveToAprilTagCommand(swerveSubsystem, limelightHelpers,visionSubsystem);
+public DriveToAprilTagCommandDistance driveToAprilTagCommandDistance = new DriveToAprilTagCommandDistance(swerveSubsystem, limelightHelpers,visionSubsystem);
+public DriveToAprilTagCommandSimple driveToAprilTagCommandSimple = new DriveToAprilTagCommandSimple(swerveSubsystem, limelightHelpers,visionSubsystem);
 //public SwerveSubsystem swervebase = new SwerveSubsystem(null);
 //public LimelightHelpers limelightHelpers = new LimelightHelpers();
 
@@ -139,10 +150,10 @@ private final RunMotorWithAprilTag2 runMotorWithAprilTag2 = new RunMotorWithApri
     configureBindings();
 
     //Controller 0
-    controller0.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag);
-    controller1.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag);
-    controller0.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag2);
-    controller1.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag2);
+    controller0.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
+    // controller1.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag);
+    // controller0.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag2);
+    // controller1.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag2);
   }
 
   /**
