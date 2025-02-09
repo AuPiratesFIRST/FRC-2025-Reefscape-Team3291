@@ -22,6 +22,9 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveInputStream;
+import frc.robot.commands.DriveToAprilTagCommand;
+import frc.robot.commands.DriveToAprilTagCommandDistance;
+import frc.robot.commands.DriveToAprilTagCommandSimple;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -36,6 +39,10 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
   public VisionSubsystem visionSubsystem = new VisionSubsystem();
+  public DriveToAprilTagCommand driveToAprilTagCommand = new DriveToAprilTagCommand(swerveSubsystem, limelightHelpers,visionSubsystem);
+  public DriveToAprilTagCommandDistance driveToAprilTagCommandDistance = new DriveToAprilTagCommandDistance(swerveSubsystem, limelightHelpers,visionSubsystem);
+  public DriveToAprilTagCommandSimple driveToAprilTagCommandSimple = new DriveToAprilTagCommandSimple(swerveSubsystem, limelightHelpers,visionSubsystem);
+
   // public ColorChanger colorChanger = new ColorChanger();
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -131,6 +138,10 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+
+    controller0.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
+    controller1.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
+
   }
 
   /**
