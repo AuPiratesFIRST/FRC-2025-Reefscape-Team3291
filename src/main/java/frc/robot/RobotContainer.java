@@ -44,15 +44,16 @@ public class RobotContainer {
   public CommandJoystick controller1 = new CommandJoystick(2);
   public VisionSubsystem visionSubsystem = new VisionSubsystem();
   public LimelightHelpers limelightHelpers = new LimelightHelpers();
-  public SwerveSubsystem swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve3291"));
-  public DriveToAprilTag driveToAprilTagCommand = new DriveToAprilTag(swerveSubsystem, limelightHelpers,visionSubsystem);
-  public DriveToAprilTagCommandDistance driveToAprilTagCommandDistance = new DriveToAprilTagCommandDistance(swerveSubsystem, limelightHelpers,visionSubsystem);
-  public DriveToAprilTagCommandSimple driveToAprilTagCommandSimple = new DriveToAprilTagCommandSimple(swerveSubsystem, limelightHelpers,visionSubsystem);
+  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+      "swerve3291"));
+  //public SwerveSubsystem swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve3291"));
+  public DriveToAprilTag driveToAprilTagCommand = new DriveToAprilTag(drivebase, limelightHelpers,visionSubsystem);
+  public DriveToAprilTagCommandDistance driveToAprilTagCommandDistance = new DriveToAprilTagCommandDistance(drivebase, limelightHelpers,visionSubsystem);
+  public DriveToAprilTagCommandSimple driveToAprilTagCommandSimple = new DriveToAprilTagCommandSimple(drivebase, limelightHelpers,visionSubsystem);
 
   // public ColorChanger colorChanger = new ColorChanger();
   // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-      "swerve3291"));
+  
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
