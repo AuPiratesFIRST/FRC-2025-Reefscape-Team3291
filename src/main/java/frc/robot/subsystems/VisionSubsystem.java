@@ -29,7 +29,7 @@ public class VisionSubsystem {
       double kP = 0.1;//change later
 
       double targetingForwardSpeed = LimelightHelpers.getTY(limelight) * kP;
-      targetingForwardSpeed *= Constants.Swerve.maxSpeed; // 3.0 m/s max speed
+      targetingForwardSpeed *= Constants.MAX_SPEED; // 3.0 m/s max speed
       targetingForwardSpeed *= -1.0;
 
       return targetingForwardSpeed;
@@ -42,7 +42,7 @@ public class VisionSubsystem {
       double targetingAngularVelocity = LimelightHelpers.getTX(limelight) * kP;
   
       // convert to radians per second for our drive method
-      targetingAngularVelocity *= Constants.Swerve.maxAngularVelocity;
+      targetingAngularVelocity *= 11.5;
   
       //invert since tx is positive when the target is to the right of the crosshair
       targetingAngularVelocity *= -1.0;

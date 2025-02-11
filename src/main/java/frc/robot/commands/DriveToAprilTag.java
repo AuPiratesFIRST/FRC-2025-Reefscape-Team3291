@@ -2,13 +2,13 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LimelightHelpers;
-import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 
-public class DriveToAprilTagCommand extends Command {
+public class DriveToAprilTag extends Command {
     private final SwerveSubsystem swerveSubsystem;
     private final LimelightHelpers limelightHelpers;
     private final VisionSubsystem visionSubsystem;
@@ -16,7 +16,7 @@ public class DriveToAprilTagCommand extends Command {
     public String frontCamera = "limelight-front";
     public String backCamera = "limelight-back";
 
-    public DriveToAprilTagCommand(SwerveSubsystem swerveSubsystem, LimelightHelpers limelightHelpers, VisionSubsystem visionSubsystem) {
+    public DriveToAprilTag(SwerveSubsystem swerveSubsystem, LimelightHelpers limelightHelpers, VisionSubsystem visionSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
         this.limelightHelpers = limelightHelpers;
         this.visionSubsystem = visionSubsystem;

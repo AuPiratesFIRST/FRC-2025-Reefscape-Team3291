@@ -16,13 +16,15 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.LimelightHelpers;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveInputStream;
-import frc.robot.commands.DriveToAprilTagCommand;
+import frc.robot.commands.DriveToAprilTag;
 import frc.robot.commands.DriveToAprilTagCommandDistance;
 import frc.robot.commands.DriveToAprilTagCommandSimple;
 
@@ -38,8 +40,12 @@ import frc.robot.commands.DriveToAprilTagCommandSimple;
 public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
+  public CommandJoystick controller0 = new CommandJoystick(1);
+  public CommandJoystick controller1 = new CommandJoystick(2);
   public VisionSubsystem visionSubsystem = new VisionSubsystem();
-  public DriveToAprilTagCommand driveToAprilTagCommand = new DriveToAprilTagCommand(swerveSubsystem, limelightHelpers,visionSubsystem);
+  public LimelightHelpers limelightHelpers = new LimelightHelpers();
+  public SwerveSubsystem swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve3291"));
+  public DriveToAprilTag driveToAprilTagCommand = new DriveToAprilTag(swerveSubsystem, limelightHelpers,visionSubsystem);
   public DriveToAprilTagCommandDistance driveToAprilTagCommandDistance = new DriveToAprilTagCommandDistance(swerveSubsystem, limelightHelpers,visionSubsystem);
   public DriveToAprilTagCommandSimple driveToAprilTagCommandSimple = new DriveToAprilTagCommandSimple(swerveSubsystem, limelightHelpers,visionSubsystem);
 
@@ -139,8 +145,8 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
-    controller0.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
-    controller1.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
+    //controller0.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
+    //controller1.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
 
   }
 
