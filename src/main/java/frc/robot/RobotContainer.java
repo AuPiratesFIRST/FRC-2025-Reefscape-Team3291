@@ -47,7 +47,7 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
       "swerve3291"));
   //public SwerveSubsystem swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve3291"));
-  public DriveToAprilTag driveToAprilTagCommand = new DriveToAprilTag(drivebase, limelightHelpers,visionSubsystem);
+  public DriveToAprilTag driveToAprilTag = new DriveToAprilTag(drivebase, limelightHelpers,visionSubsystem);
   public DriveToAprilTagCommandDistance driveToAprilTagCommandDistance = new DriveToAprilTagCommandDistance(drivebase, limelightHelpers,visionSubsystem);
   public DriveToAprilTagCommandSimple driveToAprilTagCommandSimple = new DriveToAprilTagCommandSimple(drivebase, limelightHelpers,visionSubsystem);
 
@@ -146,7 +146,7 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
-    //controller0.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
+    controller0.button(Constants.buttonList.b).whileTrue(driveToAprilTag);
     //controller1.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
 
   }

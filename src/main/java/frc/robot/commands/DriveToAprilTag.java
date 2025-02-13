@@ -22,13 +22,15 @@ public class DriveToAprilTag extends Command {
         this.visionSubsystem = visionSubsystem;
         
         // Get the Pose2d relative to the AprilTag
-        this.targetPose = LimelightHelpers.getTargetPose3d_CameraSpace(backCamera).toPose2d();
+        this.targetPose = LimelightHelpers.getTargetPose3d_CameraSpace(frontCamera).toPose2d();
+        swerveSubsystem.driveToPose(targetPose);
+
         //double targetDistance = targetPose.getTranslation().getDistance(new Translation3d());//may be nothing
         
-        if (targetPose == null) {
-            System.out.println("Pose from Limelight is invalid!");
-            cancel();
-        }
+        
+            System.out.println("Init Successful..............Drive");
+            
+        
 
         // Use the swerve subsystem as a requirement for this command
         addRequirements(swerveSubsystem);
@@ -43,18 +45,20 @@ public class DriveToAprilTag extends Command {
     @Override
     public void execute() {
         // Drive the swerve system to the target pose
-        if (visionSubsystem.getLimelightTagID(frontCamera) == 1) {
-            swerveSubsystem.driveToPose(targetPose);
-            return;
-        }
+       
+        //if (visionSubsystem.getLimelightTagID(frontCamera) == 1) {
+        //    swerveSubsystem.driveToPose(targetPose);
+        //    return;
+        //}
         
     }
 
     @Override
     public boolean isFinished() {
         Pose2d currentPose = swerveSubsystem.getPose();
-        return currentPose.getTranslation().getDistance(targetPose.getTranslation()) < 0.1 // tolerance
-            && Math.abs(currentPose.getRotation().getRadians() - targetPose.getRotation().getRadians()) < 0.1; // rotation tolerance
+        //return currentPose.getTranslation().getDistance(targetPose.getTranslation()) < 0.1 // tolerance
+        //    && Math.abs(currentPose.getRotation().getRadians() - targetPose.getRotation().getRadians()) < 0.1; // rotation tolerance
+        return false;
     }
 
     @Override
