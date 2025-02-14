@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.subsystems.LimelightHelpers;
 import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
 import java.io.IOException;
@@ -267,20 +268,25 @@ public class SwerveSubsystem extends SubsystemBase
    * @param pose Target {@link Pose2d} to go to.
    * @return PathFinding command
    */
-  public Command driveToPose(Pose2d pose)
-  {
-// Create the constraints to use while pathfinding
+  public Command driveToPose(Pose2d pose) {
     PathConstraints constraints = new PathConstraints(
         swerveDrive.getMaximumChassisVelocity(), 4.0,
-        swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+        swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720)
+    );
 
-// Since AutoBuilder is configured, we can use it to build pathfinding commands
-    return AutoBuilder.pathfindToPose(
-        pose,
-        constraints,
-        edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
-                                     );
-  }
+    Command pathCommand = AutoBuilder.pathfindToPose(pose, constraints, 
+        edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity
+    );
+
+    if (pathCommand == null) {
+        System.out.println("ERROR: pathfindToPose() returned null!");
+    } else {
+        System.out                .println("Path command created successfully!");
+    }
+
+    return pathCommand;
+}
+
 
   /**
    * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.
@@ -733,4 +739,20 @@ public class SwerveSubsystem extends SubsystemBase
   {
     return swerveDrive;
   }
+
+  public Pose2d getAprilTagPose() {
+        double[] botPose = LimelightHelpers.getBotPose("limelight-front");
+
+        // Ensure valid data is received
+        if (botPose.length < 6) {
+            return null;
+        }
+
+        // Convert Limelight botPose array to WPILib Pose2d
+        return new Pose2d(
+            botPose[0], // X Position in meters
+            botPose[1], // Y Position in meters
+            Rotation2d.fromDegrees(botPose[5]) // Rotation angle in degrees
+        );
+    }
 }

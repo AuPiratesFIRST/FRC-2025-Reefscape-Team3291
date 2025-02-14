@@ -23,10 +23,11 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.LimelightHelpers;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 import frc.robot.commands.DriveToAprilTag;
-import frc.robot.commands.DriveToAprilTagCommandDistance;
-import frc.robot.commands.DriveToAprilTagCommandSimple;
+//import frc.robot.commands.DriveToAprilTagCommandDistance;
+//import frc.robot.commands.DriveToAprilTagCommandSimple;
 import frc.robot.commands.FollowAprilTagCommand;
 
 /**
@@ -49,8 +50,8 @@ public class RobotContainer {
       "swerve3291"));
   //public SwerveSubsystem swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve3291"));
   public DriveToAprilTag driveToAprilTag = new DriveToAprilTag(drivebase, limelightHelpers,visionSubsystem);
-  public DriveToAprilTagCommandDistance driveToAprilTagCommandDistance = new DriveToAprilTagCommandDistance(drivebase, limelightHelpers,visionSubsystem);
-  public DriveToAprilTagCommandSimple driveToAprilTagCommandSimple = new DriveToAprilTagCommandSimple(drivebase, limelightHelpers,visionSubsystem);
+  //public DriveToAprilTagCommandDistance driveToAprilTagCommandDistance = new DriveToAprilTagCommandDistance(drivebase, limelightHelpers,visionSubsystem);
+  //public DriveToAprilTagCommandSimple driveToAprilTagCommandSimple = new DriveToAprilTagCommandSimple(drivebase, limelightHelpers,visionSubsystem);
   public FollowAprilTagCommand FollowAprilTagCommand = new FollowAprilTagCommand(drivebase);
 
   // public ColorChanger colorChanger = new ColorChanger();
@@ -148,7 +149,9 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
-    controller0.button(Constants.buttonList.b).whileTrue(FollowAprilTagCommand);
+    controller0.button(Constants.buttonList.b).onTrue(new FollowAprilTagCommand(drivebase));
+
+    //controller0.button(Constants.buttonList.b).whileTrue(FollowAprilTagCommand);
     //controller1.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
 
   }
