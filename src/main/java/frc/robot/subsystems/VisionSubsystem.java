@@ -1,57 +1,16 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.Constants;
+import com.limelightvision.limelight.frc.LimelightHelpers;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class VisionSubsystem {
+public class VisionSubsystem extends SubsystemBase {
+    private final String limelightName = "limelight-front"; // Change if using a different name
 
-    private final NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight-front");
-
-    public void updateLimelightData() {
-        // Get Limelight data using LimelightHelpers
-        boolean hasTarget = LimelightHelpers.getTargetCount("limelight") > 0;
-        double xOffset = LimelightHelpers.getTX("limelight");
-        double yOffset = LimelightHelpers.getTY("limelight");
-        //double distance = LimelightHelpers.getDistance("limelight");
-        double tagID = LimelightHelpers.getFiducialID("limelight");
-
-        // Send data to NetworkTables
-        limelight.getEntry("tv").setDouble(hasTarget ? 1.0 : 0.0);
-        limelight.getEntry("tx").setDouble(xOffset);
-        limelight.getEntry("ty").setDouble(yOffset);
-        //limelight.getEntry("tz").setDouble(distance);
-        limelight.getEntry("tid").setDouble(tagID);
+    public double[] getAprilTagPose() {
+        return LimelightHelpers.getBotPose(limelightName);
     }
 
-    public double limelightRangeProportional(String limelight)
-    {    
-      double kP = 0.1;//change later
-
-      double targetingForwardSpeed = LimelightHelpers.getTY(limelight) * kP;
-      targetingForwardSpeed *= Constants.MAX_SPEED; // 3.0 m/s max speed
-      targetingForwardSpeed *= -1.0;
-
-      return targetingForwardSpeed;
+    public boolean hasTarget() {
+        return getAprilTagPose().length >= 6; // Ensure valid pose data
     }
-
-    public double limelight_aim_proportional(String limelight)
-    {    
-      double kP = .035;//change later
-  
-      double targetingAngularVelocity = LimelightHelpers.getTX(limelight) * kP;
-  
-      // convert to radians per second for our drive method
-      targetingAngularVelocity *= 11.5;
-  
-      //invert since tx is positive when the target is to the right of the crosshair
-      targetingAngularVelocity *= -1.0;
-  
-      return targetingAngularVelocity;
-    }
-
-    public double getLimelightTagID(String limelight) {
-        return LimelightHelpers.getFiducialID(limelight);
-    }
-
 }
