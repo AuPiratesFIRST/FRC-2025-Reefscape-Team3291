@@ -149,7 +149,7 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
-    controller0.button(Constants.buttonList.b).onTrue(new FollowAprilTagCommand(drivebase));
+    controller0.button(Constants.buttonList.b).whileTrue(new FollowAprilTagCommand(drivebase));
 
     //controller0.button(Constants.buttonList.b).whileTrue(FollowAprilTagCommand);
     //controller1.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
