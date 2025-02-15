@@ -741,8 +741,8 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   public Pose2d getAprilTagPose() {
-        double[] botPose = LimelightHelpers.getBotPose("limelight-front");
-
+        double[] botPose = LimelightHelpers.getTargetPose_CameraSpace("limelight-front");
+        System.out.println(botPose.length);
         // Ensure valid data is received
         if (botPose.length < 6) {
             return null;
