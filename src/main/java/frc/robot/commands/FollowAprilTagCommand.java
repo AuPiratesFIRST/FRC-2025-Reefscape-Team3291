@@ -26,22 +26,24 @@ public class FollowAprilTagCommand extends Command {
 
     @Override
     public void execute() {
-    Pose2d newPose = swerve.getAprilTagPose();
+    Pose2d newPose = swerve.getPose();
+    targetPose = swerve.getAprilTagPose();
+    
 
-    if (newPose != null && !newPose.equals(targetPose)) {
-        targetPose = newPose;
+    if (targetPose != null && !newPose.equals(targetPose)) {
+        //targetPose = newPose;
         System.out.println("New Target Pose: " + targetPose);
-        if (driveCommand == null || driveCommand.isFinished()) {
-            swerve.drive(new Translation2d(targetPose.getX(), targetPose.getY()), targetPose.getRotation().getRotations(), true);
+       // if (driveCommand == null || driveCommand.isFinished()) {
+            swerve.drive(new Translation2d(targetPose.getX(), targetPose.getY()), targetPose.getRotation().getRadians(), true);
             //driveCommand = swerve.driveToPose(targetPose);
-            if (driveCommand != null) {
-                System.out.println("Scheduling new drive command...");
-                driveCommand.schedule();
-            } else {
-                System.out.println("driveToPose() returned null!");
-            }
+            // if (driveCommand != null) {
+            //     System.out.println("Scheduling new drive command...");
+            //     driveCommand.schedule();
+            // } else {
+            //     System.out.println("driveToPose() returned null!");
+            // }
         }
-    }
+    
 
     hasFinished = true;
 }
