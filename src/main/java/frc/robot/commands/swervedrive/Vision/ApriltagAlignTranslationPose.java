@@ -21,16 +21,16 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ApriltagAlignSimple extends Command {
+public class ApriltagAlignTranslationPose extends Command {
   /** Creates a new ApriltagAlign. */
 
   private final SwerveSubsystem swerve;
   private final Vision vision;
   private final int id;
   private final PhotonCamera camera = new PhotonCamera("FrontCamera");
-  private PhotonPipelineResult results = camera.getLatestResult();
+  private PhotonPipelineResult results = camera.getLatestResult(); 
 
-  public ApriltagAlignSimple(SwerveSubsystem swerve, Vision vision, int id) {
+  public ApriltagAlignTranslationPose(SwerveSubsystem swerve, Vision vision, int id) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.vision = vision;
     this.swerve = swerve;
@@ -60,6 +60,7 @@ public class ApriltagAlignSimple extends Command {
         if (target.getFiducialId() == apriltagID) {
           targetYaw = target.getYaw();
           targetDistance = PhotonUtils.calculateDistanceToTargetMeters(0.43, 0.387, Units.degreesToRadians(10), Units.degreesToRadians(target.getPitch()));
+          target.getBestCameraToTarget();
           }
         }
 

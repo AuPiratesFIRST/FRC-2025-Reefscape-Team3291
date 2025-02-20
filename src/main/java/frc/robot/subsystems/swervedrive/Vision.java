@@ -4,6 +4,23 @@ import static edu.wpi.first.units.Units.Microseconds;
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.awt.Desktop;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.PhotonUtils;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -22,23 +39,7 @@ import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
-import java.awt.Desktop;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.PhotonUtils;
-import org.photonvision.simulation.PhotonCameraSim;
-import org.photonvision.simulation.SimCameraProperties;
-import org.photonvision.simulation.VisionSystemSim;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 import swervelib.SwerveDrive;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
@@ -414,11 +415,11 @@ public class Vision
      * Construct a Photon Camera class with help. Standard deviations are fake values, experiment and determine
      * estimation noise on an actual robot.
      *
-     * @param name                  Name of the PhotonVision camera found in the PV UI.
-     * @param robotToCamRotation    {@link Rotation3d} of the camera.
-     * @param robotToCamTranslation {@link Translation3d} relative to the center of the robot.
-     * @param singleTagStdDevs      Single AprilTag standard deviations of estimated poses from the camera.
-     * @param multiTagStdDevsMatrix Multi AprilTag standard deviations of estimated poses from the camera.
+     * @param name                  Name of the PhotonVision camera found in the PV UI. //CameraFront
+     * @param robotToCamRotation    {@link Rotation3d} of the camera. //TODO: Find this value
+     * @param robotToCamTranslation {@link Translation3d} relative to the center of the robot.//TODO: Find this value
+     * @param singleTagStdDevs      Single AprilTag standard deviations of estimated poses from the camera.//TODO: Find this value
+     * @param multiTagStdDevsMatrix Multi AprilTag standard deviations of estimated poses from the camera.//TODO: Find this value 
      */
     Cameras(String name, Rotation3d robotToCamRotation, Translation3d robotToCamTranslation,
             Matrix<N3, N1> singleTagStdDevs, Matrix<N3, N1> multiTagStdDevsMatrix)
@@ -633,6 +634,16 @@ public class Vision
     }
 
 
+  }
+
+  public Pose3d getTagPose(int id)
+  {
+    return fieldLayout.getTagPose(id).get();
+  }
+
+  public boolean isThereATag(int id)
+  {
+    return fieldLayout.getTagPose(id).isPresent();
   }
 
 }

@@ -4,24 +4,22 @@
 
 package frc.robot.commands.swervedrive.Vision;
 
-import java.util.Optional;
-
-import org.photonvision.targeting.PhotonPipelineResult;
-
-import com.google.flatbuffers.Constants;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.swervedrive.Vision;
-import swervelib.SwerveDrive;
-import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonPipelineResult;
+
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.swervedrive.Vision;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ApriltagAlign extends Command {
+public class ApriltagAlignSimple1 extends Command {
   /** Creates a new ApriltagAlign. */
 
   private final SwerveSubsystem swerve;
@@ -30,7 +28,7 @@ public class ApriltagAlign extends Command {
   private final PhotonCamera camera = new PhotonCamera("FrontCamera");
   private PhotonPipelineResult results = camera.getLatestResult();
 
-  public ApriltagAlign(SwerveSubsystem swerve, Vision vision, int id) {
+  public ApriltagAlignSimple1(SwerveSubsystem swerve, Vision vision, int id) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.vision = vision;
     this.swerve = swerve;
@@ -51,24 +49,29 @@ public class ApriltagAlign extends Command {
 
     boolean hasTargets = result.hasTargets();
     int apriltagID = id;
-    double targetYaw = 0;
-    double targetDistance = 0;
+    Pose3d targetPose = vision.getTagPose(0);
+    Transform3d cameraToRobot = new Transform3d(
+            new Translation3d(0.5, 0.2, 0),  // Translation (x, y, z)
+            new Rotation3d(0, 0, 0) // Rotation (roll, pitch, yaw)
+        );
 
     if (hasTargets == true) {
 
       for (var target : result.getTargets()) {
-        if (target.getFiducialId() == apriltagID) {
-          targetYaw = target.getYaw();
-          targetDistance = PhotonUtils.calculateDistanceToTargetMeters(0.43, 0.387, Units.degreesToRadians(10), Units.degreesToRadians(target.getPitch()));
-          }
+
+        if (vision.isThereATag(target.getFiducialId()) == true) {
+
+          targetPose = vision.getTagPose(target.getFiducialId());
+          Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), targetPose, cameraToRobot);
+          double distanceToTarget = PhotonUtils.getDistanceToPose(robotPose.toPose2d(), targetPose.toPose2d());
+          Translation2d translation = PhotonUtils.estimateCameraToTargetTranslation(distanceToTarget, Rotation2d.fromDegrees(-target.getYaw()));
+          Rotation2d targetYaw = PhotonUtils.getYawToPose(robotPose.toPose2d(), targetPose.toPose2d());
+          swerve.drive(translation, (targetYaw.getRadians() * 11.5), false);
         }
 
-        double turn = (0 - targetYaw) * 1 * 11.5;
-        double x = (0.102 - targetDistance) * 1 * 4.4196;
-        double y = 0.0;
-        Translation2d forward = new Translation2d(x, y);
+        }
 
-        swerve.drive(forward,turn, false);
+        //swerve.drive(forward,turn, false);
 
       }
 
