@@ -31,6 +31,7 @@ import frc.robot.subsystems.RunMotorSub;
 import frc.robot.subsystems.RunMotorSub2;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.commands.DriveMotorWithAprilTag;
 //import frc.robot.subsystems.SwerveSubsystem;
 //import frc.robot.subsystems.VisionSubsystem;
 //import swervelib.SwerveInputStream;
@@ -150,7 +151,7 @@ private final RunMotorWithAprilTag2 runMotorWithAprilTag2 = new RunMotorWithApri
     configureBindings();
 
     //Controller 0
-    controller0.button(Constants.buttonList.a).whileTrue(driveToAprilTagCommand);
+    controller0.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag);
     // controller1.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag);
     // controller0.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag2);
     // controller1.button(Constants.buttonList.a).whileTrue(runMotorWithAprilTag2);
