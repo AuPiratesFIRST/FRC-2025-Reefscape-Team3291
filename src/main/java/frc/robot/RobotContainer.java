@@ -28,6 +28,10 @@ import frc.robot.subsystems.RunMotorSub;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveInputStream;
+import frc.robot.commands.swervedrive.Vision.AimAtApriltags;
+import frc.robot.commands.swervedrive.Vision.ApriltagAlignSimple;
+import frc.robot.commands.swervedrive.Vision.ApriltagAlignTranslationPose;
+import frc.robot.subsystems.swervedrive.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -54,6 +58,14 @@ public class RobotContainer {
         runMotorSub,
         () -> 2 // Example: Getting speed from joystick Y-axis
 );
+
+
+  private final ApriltagAlignTranslationPose alignTranslationPose = new ApriltagAlignTranslationPose(
+    drivebase, 
+    () -> 1);
+
+  private final ApriltagAlignSimple alignSimple = new ApriltagAlignSimple(drivebase);
+  private final AimAtApriltags aimAtApriltags = new AimAtApriltags(drivebase);
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -153,6 +165,7 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
     controller0.button(2).whileTrue(runMotorCommand);
+    controller0.button(1).whileTrue(alignTranslationPose);
   }
 
   /**

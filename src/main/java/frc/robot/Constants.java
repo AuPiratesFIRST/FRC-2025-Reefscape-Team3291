@@ -40,6 +40,11 @@ public final class Constants {
     public static final double TURN_CONSTANT = 6;
   }
 
+  public static class vision{
+    public static final double deadband = 0.5;
+    public static final double stickDeadband = 0.1;
+  }
+
   public final static class Lighting {
     public final static int lightingPort = 2;
     public final static int m_ledBuffer = 200;

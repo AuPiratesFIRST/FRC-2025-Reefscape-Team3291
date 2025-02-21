@@ -23,7 +23,10 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -45,7 +48,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -76,6 +82,8 @@ public class SwerveSubsystem extends SubsystemBase
    * PhotonVision class to keep an accurate odometry.
    */
   private Vision vision;
+
+  public PhotonCamera camera = new PhotonCamera("FrontCamera");
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -144,6 +152,19 @@ public class SwerveSubsystem extends SubsystemBase
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
+
+      
+        // Correct pose estimate with vision measurements
+        // var visionEst = vision.getEstimatedGlobalPose(Cameras.CENTER_CAM);
+        // visionEst.ifPresent(
+        //         est -> {
+        //             // Change our trust in the measurement based on the tags we can see
+        //             var estStdDevs = vision.getEstimationStdDevs();
+
+        //             swerveDrive.addVisionMeasurement(
+        //                     est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+        //         });
+
       swerveDrive.updateOdometry();
       vision.updatePoseEstimation(swerveDrive);
     }
@@ -722,6 +743,61 @@ public class SwerveSubsystem extends SubsystemBase
   public void addFakeVisionReading()
   {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+
+
+  public Translation2d getTranslationToTarget(){
+    PhotonPipelineResult result = camera.getLatestResult();
+
+    Transform3d cameraToRobot = new Transform3d(
+            new Translation3d(0.5, 0.2, 0),  // Translation (x, y, z)
+            new Rotation3d(0, 0, 0) // Rotation (roll, pitch, yaw)
+        );
+
+    PhotonTrackedTarget target = result.getBestTarget();
+
+    target = result.getBestTarget();
+    Pose3d targetPose = vision.getTagPose(target.getFiducialId());
+    Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), targetPose, cameraToRobot);
+    double distanceToTarget = PhotonUtils.getDistanceToPose(robotPose.toPose2d(), targetPose.toPose2d());
+    Translation2d translation = PhotonUtils.estimateCameraToTargetTranslation(distanceToTarget, Rotation2d.fromDegrees(-target.getYaw()));
+    return translation;
+  }
+       
+  public Rotation2d getRotationToTarget(){
+    PhotonPipelineResult result = camera.getLatestResult();
+    PhotonTrackedTarget target = result.getBestTarget();
+
+    Transform3d cameraToRobot = new Transform3d(
+      new Translation3d(0.5, 0.2, 0),  // Translation (x, y, z)
+      new Rotation3d(0, 0, 0) // Rotation (roll, pitch, yaw)
+      );
+
+    Pose3d targetPose = vision.getTagPose(target.getFiducialId());
+    Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), targetPose, cameraToRobot);
+    Rotation2d targetYaw = PhotonUtils.getYawToPose(robotPose.toPose2d(), targetPose.toPose2d());
+    return targetYaw;
+  }
+
+  public double distanceToTarget(){
+    PhotonPipelineResult result = camera.getLatestResult();
+    PhotonTrackedTarget target = result.getBestTarget();
+    Pose3d targetPose = vision.getTagPose(target.getFiducialId());
+    Transform3d cameraToRobot = new Transform3d(
+            new Translation3d(0.5, 0.2, 0),  // Translation (x, y, z)
+            new Rotation3d(0, 0, 0) // Rotation (roll, pitch, yaw)
+        );
+    Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), targetPose, cameraToRobot);
+    double distanceToTarget = PhotonUtils.getDistanceToPose(robotPose.toPose2d(), targetPose.toPose2d());
+    return distanceToTarget;
+  }
+
+  public double getTargetYaw(){
+    PhotonPipelineResult result = camera.getLatestResult();
+    PhotonTrackedTarget target = result.getBestTarget();
+
+    return target.getYaw();
+
   }
 
   /**
