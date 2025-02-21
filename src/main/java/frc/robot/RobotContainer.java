@@ -23,9 +23,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.RunMotorCommand;
-import frc.robot.subsystems.RunMotorSub;
-import frc.robot.subsystems.VisionSubsystem;
+//import frc.robot.commands.RunMotorCommand;
+//import frc.robot.subsystems.RunMotorSub;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 import frc.robot.commands.swervedrive.Vision.AimAtApriltags;
@@ -46,19 +45,19 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
   public CommandJoystick controller0 = new CommandJoystick(1);
-  public VisionSubsystem visionSubsystem = new VisionSubsystem();
+  //public VisionSubsystem visionSubsystem = new VisionSubsystem();
   public ColorChanger colorChanger = new ColorChanger();
   private final SendableChooser<Command> autoChooser;
-  public RunMotorSub runMotorSub = new RunMotorSub();
+  //public RunMotorSub runMotorSub = new RunMotorSub();
   // public ColorChanger colorChanger = new ColorChanger();
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
       "swerve3291"));
 
-    private final RunMotorCommand runMotorCommand = new RunMotorCommand(
+/*    // private final RunMotorCommand runMotorCommand = new RunMotorCommand(
         runMotorSub,
         () -> 2 // Example: Getting speed from joystick Y-axis
-);
+);*/
 
 
   private final ApriltagAlignTranslationPose alignTranslationPose = new ApriltagAlignTranslationPose(
@@ -156,7 +155,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
 
-    NamedCommands.registerCommand("RunMotor", new RunMotorCommand(runMotorSub, () -> 2).withTimeout(5));
+    //NamedCommands.registerCommand("RunMotor", new RunMotorCommand(runMotorSub, () -> 2).withTimeout(5));
 
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
@@ -165,7 +164,7 @@ public class RobotContainer {
     // Build an auto chooser. This will use Commands.none() as the default option.
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    controller0.button(2).whileTrue(runMotorCommand);
+   // controller0.button(2).whileTrue(runMotorCommand);
     controller0.button(1).whileTrue(alignTranslationPose);
   }
 

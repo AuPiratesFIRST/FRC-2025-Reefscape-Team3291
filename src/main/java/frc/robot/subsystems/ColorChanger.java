@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.Lighting;
 import frc.robot.Constants.Lighting.Colors;
 
 public class ColorChanger extends SubsystemBase { 
@@ -15,7 +14,7 @@ public class ColorChanger extends SubsystemBase {
   public Spark lighting;
   public final SendableChooser<Constants.Lighting.Colors> lighting_chooser =  new SendableChooser<>();
   /** Creates a new ColorChanger. */
-  
+
  public ColorChanger() {
  
     lighting = new Spark(Constants.Lighting.lightingPort);
