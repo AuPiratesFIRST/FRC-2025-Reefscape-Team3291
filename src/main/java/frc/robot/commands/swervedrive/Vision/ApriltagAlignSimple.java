@@ -55,8 +55,8 @@ public class ApriltagAlignSimple extends Command {
           }
         }
 
-        double turn = (0 - (-targetYaw)) * 1 * 11.5;
-        double x = (0.102 - targetDistance) * 1 * 4.4196;
+        double turn = (0 - (-targetYaw)) * 0.1 * 11.5;
+        double x = (0.102 - targetDistance) * 0.1 * 4.4196;
         double y = 0.0;
         Translation2d forward = new Translation2d(x, y);
 

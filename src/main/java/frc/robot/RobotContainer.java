@@ -31,7 +31,7 @@ import swervelib.SwerveInputStream;
 import frc.robot.commands.swervedrive.Vision.AimAtApriltags;
 import frc.robot.commands.swervedrive.Vision.ApriltagAlignSimple;
 import frc.robot.commands.swervedrive.Vision.ApriltagAlignTranslationPose;
-import frc.robot.subsystems.swervedrive.Vision;
+import frc.robot.subsystems.ColorChanger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -47,6 +47,7 @@ public class RobotContainer {
   final CommandXboxController driverXbox = new CommandXboxController(0);
   public CommandJoystick controller0 = new CommandJoystick(1);
   public VisionSubsystem visionSubsystem = new VisionSubsystem();
+  public ColorChanger colorChanger = new ColorChanger();
   private final SendableChooser<Command> autoChooser;
   public RunMotorSub runMotorSub = new RunMotorSub();
   // public ColorChanger colorChanger = new ColorChanger();
