@@ -62,7 +62,7 @@ public class RobotContainer {
 
   private final ApriltagAlignTranslationPose alignTranslationPose = new ApriltagAlignTranslationPose(
     drivebase, 
-    () -> 1);
+    () -> controller0.getRawAxis(1));
 
   private final ApriltagAlignSimple alignSimple = new ApriltagAlignSimple(drivebase);
   private final AimAtApriltags aimAtApriltags = new AimAtApriltags(drivebase);
