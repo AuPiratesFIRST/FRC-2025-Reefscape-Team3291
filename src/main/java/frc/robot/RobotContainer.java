@@ -57,25 +57,13 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
-  //public CommandJoystick controller0 = new CommandJoystick(1);
+  public CommandJoystick controller1 = new CommandJoystick(1);
   public VisionSubsystem visionSubsystem = new VisionSubsystem();
   private final SendableChooser<Command> autoChooser;
   public RunMotorSub runMotorSub = new RunMotorSub();
   // public ColorChanger colorChanger = new ColorChanger();
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
-
-  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final IntakePivotSubsystem intakePivotSubsystem = new IntakePivotSubsystem();
-  private final IntakeMotorSubsystem intakeMotorSubsystem = new IntakeMotorSubsystem();
-  private final Command elevatorGoToTop = new GoToTop(elevatorSubsystem);
-  private final Command elevatorGoToGround = new GoToGround(elevatorSubsystem);
-  private final Command ResetElevatorEncoder = new ResetElevatorEncoder(elevatorSubsystem);
-  private final Command pivotToGround = new PivotToGround(intakePivotSubsystem);
-  private final Command pivotToStow = new PivotToStow(intakePivotSubsystem);
-  private final Command eSpitCMD = new ESpitCMD(intakeMotorSubsystem);
-  private final Command intakeCMD = new IntakeCMD(intakeMotorSubsystem);
-  private final GoToFloor goToFloor = new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.pov(180).getAsBoolean(), () -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean());
 
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final IntakePivotSubsystem intakePivotSubsystem = new IntakePivotSubsystem();
