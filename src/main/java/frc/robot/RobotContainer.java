@@ -28,8 +28,8 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Elevator;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.RunMotorCommand;
-import frc.robot.subsystems.RunMotorSub;
+// import frc.robot.commands.RunMotorCommand;
+// import frc.robot.subsystems.RunMotorSub;
 import frc.robot.commands.ElevatorCMDs.GoToFloor;
 import frc.robot.commands.ElevatorCMDs.GoToGround;
 import frc.robot.commands.ElevatorCMDs.GoToTop;
@@ -60,7 +60,7 @@ public class RobotContainer {
   public CommandJoystick controller1 = new CommandJoystick(1);
   public VisionSubsystem visionSubsystem = new VisionSubsystem();
   private final SendableChooser<Command> autoChooser;
-  public RunMotorSub runMotorSub = new RunMotorSub();
+  // public RunMotorSub runMotorSub = new RunMotorSub();
   // public ColorChanger colorChanger = new ColorChanger();
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
@@ -77,10 +77,10 @@ public class RobotContainer {
   private final Command intakeCMD = new IntakeCMD(intakeMotorSubsystem);
   private final GoToFloor goToFloor = new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.pov(180).getAsBoolean(), () -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean());
 
-    private final RunMotorCommand runMotorCommand = new RunMotorCommand(
-        runMotorSub,
-        () -> 2 // Example: Getting speed from joystick Y-axis
-);
+//     private final RunMotorCommand runMotorCommand = new RunMotorCommand(
+//         runMotorSub,
+//         () -> 2 // Example: Getting speed from joystick Y-axis
+// );
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -264,7 +264,7 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
-  // public void setMotorBrake(boolean brake) {
-  //   drivebase.setMotorBrake(brake);
-  // }
+  public void setMotorBrake(boolean brake) {
+    drivebase.setMotorBrake(brake);
+  }
 }
