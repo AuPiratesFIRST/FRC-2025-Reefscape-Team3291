@@ -95,11 +95,12 @@ public class NavXSwerve extends SwerveIMU
    *
    * @param invertIMU invert gyro direction
    */
-  public void setInverted(boolean invertIMU)
-  {
-    invertedIMU = true;
+public void setInverted(boolean invertIMU)
+{
+    invertedIMU = invertIMU;
     setOffset(getRawRotation3d());
-  }
+}
+
 
   /**
    * Fetch the {@link Rotation3d} from the IMU without any zeroing. Robot relative.
