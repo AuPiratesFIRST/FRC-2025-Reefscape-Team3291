@@ -15,8 +15,8 @@
         "canbus": null
     },
     "inverted": {
-        "angle": true,
-        "drive": true
+        "angle": false,
+        "drive": false,
     },
     "encoder": {
         "type": "cancoder",
