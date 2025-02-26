@@ -158,7 +158,7 @@ public class SwerveSubsystem extends SubsystemBase {
       final boolean enableFeedforward = true;
       // Configure AutoBuilder last
       AutoBuilder.configure(
-          swerveDrive::getPose,
+          this::getPoseAuto,
           // Robot pose supplier
           swerveDrive::resetOdometry,
           // Method to reset odometry (will be called if your auto has a starting pose)
@@ -524,6 +524,12 @@ public class SwerveSubsystem extends SubsystemBase {
    *
    * @return The robot's pose
    */
+  public Pose2d getPoseAuto() {
+    Pose2d originalPose = swerveDrive.getPose();
+    Rotation2d correcRotation2d = new Rotation2d(-originalPose.getRotation().getRadians());
+    return new Pose2d(originalPose.getTranslation(), correcRotation2d);
+  }
+
   public Pose2d getPose() {
     return swerveDrive.getPose();
   }
