@@ -10,6 +10,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -21,11 +22,15 @@ public class ApriltagAlignSimple extends Command {
   /** Creates a new ApriltagAlign. */
 
   private final SwerveSubsystem swerve;
+  private final Boolean shiftR;
+  private final Boolean shiftL;
   private final PhotonCamera camera = new PhotonCamera("FrontCamera");
 
-  public ApriltagAlignSimple(SwerveSubsystem swerve) {
+  public ApriltagAlignSimple(SwerveSubsystem swerve, Boolean shiftR, Boolean shiftL) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.swerve = swerve;
+    this.shiftR = shiftR;
+    this.shiftL = shiftL;
     this.addRequirements(swerve);
   }
 
@@ -41,6 +46,9 @@ public class ApriltagAlignSimple extends Command {
     PhotonPipelineResult result = camera.getLatestResult();
 
     boolean hasTargets = result.hasTargets();
+
+    SmartDashboard.putBoolean("Seeing targets?", hasTargets);
+
     double targetYaw = 0;
     double targetDistance = 0;
 
@@ -55,9 +63,21 @@ public class ApriltagAlignSimple extends Command {
           }
         }
 
+        SmartDashboard.putNumber("targetYaw", targetYaw);
+        SmartDashboard.putNumber("targetDistance", targetDistance);
+
         double turn = (0 - (-targetYaw)) * 0.1 * 11.5;
         double x = (0.102 - targetDistance) * 0.1 * 4.4196;
         double y = 0.0;
+
+        if (shiftR == true){
+          y = 0.1524;
+        } else if (shiftL == true){
+          y = -0.1524;
+        } else {
+          y = 0.0;
+        }
+
         Translation2d forward = new Translation2d(x, y);
 
         swerve.drive(forward,turn, false);

@@ -12,6 +12,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.Constants;
@@ -43,7 +44,10 @@ public class ApriltagAlignTranslationPose extends Command {
     PhotonPipelineResult result = camera.getLatestResult();
 
     boolean hasTargets = result.hasTargets();
-    Translation2d translationModify = new Translation2d(0.0, 6.0);
+
+    SmartDashboard.putBoolean("Seeing targets?", hasTargets);
+
+    Translation2d translationModify = new Translation2d(0.0, 0.1524);
 
     if (hasTargets == true) {
 

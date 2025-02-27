@@ -64,7 +64,11 @@ public class RobotContainer {
     drivebase, 
     () -> controller0.getRawAxis(1));
 
-  private final ApriltagAlignSimple alignSimple = new ApriltagAlignSimple(drivebase);
+  private final ApriltagAlignSimple alignSimple = new ApriltagAlignSimple(
+    drivebase,
+    driverXbox.povRight().getAsBoolean(),
+    driverXbox.povLeft().getAsBoolean());
+    
   private final AimAtApriltags aimAtApriltags = new AimAtApriltags(drivebase);
 
   /**
