@@ -87,6 +87,11 @@ public class SwerveSubsystem extends SubsystemBase
 
   public PhotonCamera camera = new PhotonCamera("FrontCamera");
 
+  public Transform3d cameraToRobot = new Transform3d(
+    new Translation3d(0.3048, 0.0, 0.1524),  // Translation (x, y, z)
+    new Rotation3d(0, 5.67232, 0) // Rotation (roll, pitch, yaw)
+);
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -750,12 +755,6 @@ public class SwerveSubsystem extends SubsystemBase
 
   public Translation2d getTranslationToTarget(){
     PhotonPipelineResult result = camera.getLatestResult();
-
-    Transform3d cameraToRobot = new Transform3d(
-            new Translation3d(0.5, 0.2, 0),  // Translation (x, y, z)
-            new Rotation3d(0, 0, 0) // Rotation (roll, pitch, yaw)
-        );
-
     PhotonTrackedTarget target = result.getBestTarget();
 
     target = result.getBestTarget();
@@ -772,12 +771,6 @@ public class SwerveSubsystem extends SubsystemBase
   public Rotation2d getRotationToTarget(){
     PhotonPipelineResult result = camera.getLatestResult();
     PhotonTrackedTarget target = result.getBestTarget();
-
-    Transform3d cameraToRobot = new Transform3d(
-      new Translation3d(0.5, 0.2, 0),  // Translation (x, y, z)
-      new Rotation3d(0, 0, 0) // Rotation (roll, pitch, yaw)
-      );
-
     Pose3d targetPose = vision.getTagPose(target.getFiducialId());
     Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), targetPose, cameraToRobot);
     Rotation2d targetYaw = PhotonUtils.getYawToPose(robotPose.toPose2d(), targetPose.toPose2d());
@@ -788,10 +781,6 @@ public class SwerveSubsystem extends SubsystemBase
     PhotonPipelineResult result = camera.getLatestResult();
     PhotonTrackedTarget target = result.getBestTarget();
     Pose3d targetPose = vision.getTagPose(target.getFiducialId());
-    Transform3d cameraToRobot = new Transform3d(
-            new Translation3d(0.5, 0.2, 0),  // Translation (x, y, z)
-            new Rotation3d(0, 0, 0) // Rotation (roll, pitch, yaw)
-        );
     Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), targetPose, cameraToRobot);
     double distanceToTarget = PhotonUtils.getDistanceToPose(robotPose.toPose2d(), targetPose.toPose2d());
     return distanceToTarget;
