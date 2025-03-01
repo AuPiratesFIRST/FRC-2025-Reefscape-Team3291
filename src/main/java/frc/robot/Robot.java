@@ -152,11 +152,11 @@ public class Robot extends TimedRobot
       }
     }
     else {
-      if (!aButtonPressed) {
         aButtonReady = true;
-      }
     }
     SmartDashboard.putBoolean("robot a button toggle", aButtonPressed);
+    SmartDashboard.putBoolean("robot a button ", m_robotContainer.driverXbox.a().getAsBoolean());
+    SmartDashboard.putBoolean("robot a button ready", aButtonReady);
 
   }
 
