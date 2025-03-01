@@ -7,8 +7,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.OperatorConstants;
+import swervelib.SwerveInputStream;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -24,6 +27,9 @@ public class Robot extends TimedRobot
   private RobotContainer m_robotContainer;
 
   private Timer disabledTimer;
+
+  private boolean aButtonReady = true;
+  public static boolean aButtonPressed = false;
 
   public Robot()
   {
@@ -139,6 +145,19 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
+    if (m_robotContainer.driverXbox.a().getAsBoolean()) {
+      if (aButtonReady) {
+        aButtonPressed = !aButtonPressed;
+        aButtonReady = false;
+      }
+    }
+    else {
+      if (!aButtonPressed) {
+        aButtonReady = true;
+      }
+    }
+    SmartDashboard.putBoolean("robot a button toggle", aButtonPressed);
+
   }
 
   @Override

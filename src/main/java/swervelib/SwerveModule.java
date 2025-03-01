@@ -440,14 +440,21 @@ public class SwerveModule
   public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop,
                               double driveFeedforwardVoltage)
   {
+    double speed;
+    if (frc.robot.Robot.aButtonPressed) {
+      speed = frc.robot.Constants.OperatorConstants.SPEED_REDUCTION;
+    }
+    else {
+      speed = 1;
+    }
 
     if (isOpenLoop)
     {
       double percentOutput = desiredState.speedMetersPerSecond / maxDriveVelocity.in(MetersPerSecond);
-      driveMotor.setVoltage(percentOutput * 12);
+      driveMotor.setVoltage(percentOutput * 12 * speed);
     } else
     {
-      driveMotor.setReference(desiredState.speedMetersPerSecond, driveFeedforwardVoltage);
+      driveMotor.setReference(desiredState.speedMetersPerSecond * speed, driveFeedforwardVoltage * speed);
     }
 
     // Prevent module rotation if angle is the same as the previous angle.
