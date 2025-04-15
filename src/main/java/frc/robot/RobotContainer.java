@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -236,6 +237,11 @@ public class RobotContainer {
       // driverXbox.leftBumper().onTrue(Commands.none());
       // driverXbox.rightBumper().onTrue(Commands.none());
     } else {
+      driverXbox.rightBumper().toggleOnTrue(new StartEndCommand(
+        () -> driveAngularVelocity.scaleTranslation(0.2),  // On press
+        () -> driveAngularVelocity.scaleTranslation(0.8)   // On release
+      ));
+
       controller1.button(Constants.ButtonList.r3).whileTrue(ResetElevatorEncoder);//should be commented out after testing
       driverXbox.x().whileTrue(pivotToGround);
       driverXbox.b().whileTrue(pivotToStow);
