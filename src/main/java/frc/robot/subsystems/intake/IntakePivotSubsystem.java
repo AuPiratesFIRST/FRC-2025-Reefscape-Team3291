@@ -233,7 +233,7 @@ public class IntakePivotSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     loadPreferences();//to be commented out
-    goToPosition(pivot_target);
+    goToPosition(PivotTarget.TOPLEVEL);
     SmartDashboard.putString("pivot target", pivot_target.toString());
     SmartDashboard.putNumber("pivot encoder reading", getCurrentAngle());
     SmartDashboard.putNumber("pivot adjusted encoder reading", getCurrentAngle() * 360.0);

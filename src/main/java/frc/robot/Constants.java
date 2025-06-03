@@ -44,10 +44,10 @@ public final class Constants {
 
   
   public static class Elevator {
-    public static final double deadband = 0.02;
+    public static final double deadband = 0.1;
 
-    public static final double maxVelocity = 5.5;
-    public static final double maxAcceleration = 5;
+    public static final double maxVelocity = 0.5;
+    public static final double maxAcceleration = 0.2;
     public static final double ks = 0.0;
     public static final double kg = 0.138;
     public static final double kv = 1.78;
@@ -139,7 +139,7 @@ public final class Constants {
 
     public static final boolean reverseIntakeMotor = true;
 
-    public static final double eSpitSpeed = -1200.0;
+    public static final double eSpitSpeed = -1000.0;
     public static final double ejectSpeed = 1600.0;
     public static final double intakeSpeed = 1000.0;
     

@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Elevator;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ParadeLoop;
 // import frc.robot.commands.RunMotorCommand;
 // import frc.robot.subsystems.RunMotorSub;
 import frc.robot.commands.ElevatorCMDs.GoToFloor;
@@ -66,8 +67,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
 
-  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final IntakePivotSubsystem intakePivotSubsystem = new IntakePivotSubsystem();
+  public final static ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  public final static IntakePivotSubsystem intakePivotSubsystem = new IntakePivotSubsystem();
   private final IntakeMotorSubsystem intakeMotorSubsystem = new IntakeMotorSubsystem();
   private final Command elevatorGoToTop = new GoToTop(elevatorSubsystem);
   private final Command elevatorGoToGround = new GoToGround(elevatorSubsystem);
@@ -77,6 +78,7 @@ public class RobotContainer {
   private final Command eSpitCMD = new ESpitCMD(intakeMotorSubsystem);
   private final Command intakeCMD = new IntakeCMD(intakeMotorSubsystem);
   private final GoToFloor goToFloor = new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.pov(180).getAsBoolean(), () -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean());
+  private final ParadeLoop paradeLoop = new ParadeLoop();
 
 //     private final RunMotorCommand runMotorCommand = new RunMotorCommand(
 //         runMotorSub,
@@ -247,8 +249,11 @@ public class RobotContainer {
       driverXbox.b().whileTrue(pivotToStow);
       controller1.povLeft().toggleOnTrue(eSpitCMD);
       controller1.povRight().toggleOnTrue(intakeCMD);
-      elevatorSubsystem.setDefaultCommand(goToFloor);
-      intakePivotSubsystem.setDefaultCommand(goToFloor);
+      //elevatorSubsystem.setDefaultCommand(goToFloor);
+      //intakePivotSubsystem.setDefaultCommand(goToFloor);
+      elevatorSubsystem.setDefaultCommand(paradeLoop);
+      //intakePivotSubsystem.setDefaultCommand(paradeLoop);
+      intakeMotorSubsystem.setDefaultCommand(eSpitCMD);
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
       driverXbox.b().whileTrue(
