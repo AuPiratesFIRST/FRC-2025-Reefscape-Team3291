@@ -39,12 +39,16 @@ import frc.robot.commands.IntakeMotorCMDs.ESpitCMD;
 import frc.robot.commands.IntakeMotorCMDs.IntakeCMD;
 import frc.robot.commands.IntakePivotCMDs.PivotToGround;
 import frc.robot.commands.IntakePivotCMDs.PivotToStow;
+import frc.robot.commands.ColorChangingCMD;
+import frc.robot.subsystems.ColorChanger;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.intake.IntakeMotorSubsystem;
 import frc.robot.subsystems.intake.IntakePivotSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveInputStream;
+import frc.robot.commands.DemoMode;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -62,7 +66,7 @@ public class RobotContainer {
   public VisionSubsystem visionSubsystem = new VisionSubsystem();
   private final SendableChooser<Command> autoChooser;
   // public RunMotorSub runMotorSub = new RunMotorSub();
-  // public ColorChanger colorChanger = new ColorChanger();
+  public ColorChanger colorChanger = new ColorChanger();
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
 
@@ -77,6 +81,8 @@ public class RobotContainer {
   private final Command eSpitCMD = new ESpitCMD(intakeMotorSubsystem);
   private final Command intakeCMD = new IntakeCMD(intakeMotorSubsystem);
   private final GoToFloor goToFloor = new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.pov(180).getAsBoolean(), () -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean());
+  private final ColorChangingCMD colorChangingCMD = new ColorChangingCMD(colorChanger);
+  private final Command demoModeCMD = DemoMode.build(elevatorSubsystem, intakePivotSubsystem, intakeMotorSubsystem, colorChanger);
 
 //     private final RunMotorCommand runMotorCommand = new RunMotorCommand(
 //         runMotorSub,
@@ -173,6 +179,8 @@ public class RobotContainer {
 
 
     configureBindings();
+    colorChanger.setDefaultCommand(colorChangingCMD);
+    controller1.button(Constants.ButtonList.b).onTrue(demoModeCMD);
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("goToGroundFloor", new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.povDown().getAsBoolean(), () -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 0).until(() -> elevatorSubsystem.ifAtFloor(Elevator.groundFloor)));
     NamedCommands.registerCommand("goToSecondFloor", new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.povDown().getAsBoolean(),() -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 1).until(() -> elevatorSubsystem.ifAtFloor(Elevator.secondFloor)));
@@ -180,7 +188,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("goToFourthFloor", new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.povDown().getAsBoolean(),() -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 3).until(() -> elevatorSubsystem.ifAtFloor(Elevator.fourthFloor)));
     NamedCommands.registerCommand("intakeCMD", intakeCMD);
     NamedCommands.registerCommand("eSpitCMD", eSpitCMD);
-    
+    NamedCommands.registerCommand("c", eSpitCMD);
+
 
     //NamedCommands.registerCommand("RunMotor", new RunMotorCommand(runMotorSub, () -> 2).withTimeout(5));
 
