@@ -4,12 +4,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.ElevatorCMDs.GoToTop;
 import frc.robot.commands.ElevatorCMDs.GoToGround;
-import frc.robot.commands.ElevatorCMDs.GoToFloor;
+import frc.robot.commands.ElevatorCMDs.GoToFloorDemo;
 import frc.robot.commands.IntakePivotCMDs.PivotToGround;
 import frc.robot.commands.IntakePivotCMDs.PivotToStow;
 import frc.robot.commands.IntakeMotorCMDs.IntakeCMD;
 import frc.robot.commands.IntakeMotorCMDs.ESpitCMD;
-import frc.robot.commands.ColorChangingCMD;
 import frc.robot.subsystems.ColorChanger;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakePivotSubsystem;
@@ -32,14 +31,14 @@ public class DemoMode {
         new GoToGround(elevator).withTimeout(3),
         Commands.waitSeconds(1),
 
-        // Step 3: Go to each floor using GoToFloor (manual triggers replaced with fixed target floors)
-        new GoToFloor(elevator, intakePivot, () -> false, () -> false, () -> false, () -> false, 0).withTimeout(3),
+        // Step 3: Go to each floor using GoToFloorDemo (auto-completing version for demo mode)
+        new GoToFloorDemo(elevator, intakePivot, 0, false).withTimeout(3),
         Commands.waitSeconds(1),
-        new GoToFloor(elevator, intakePivot, () -> false, () -> false, () -> false, () -> false, 1).withTimeout(3),
+        new GoToFloorDemo(elevator, intakePivot, 1, false).withTimeout(3),
         Commands.waitSeconds(1),
-        new GoToFloor(elevator, intakePivot, () -> false, () -> false, () -> false, () -> false, 2).withTimeout(3),
+        new GoToFloorDemo(elevator, intakePivot, 2, false).withTimeout(3),
         Commands.waitSeconds(1),
-        new GoToFloor(elevator, intakePivot, () -> false, () -> false, () -> false, () -> false, 3).withTimeout(3),
+        new GoToFloorDemo(elevator, intakePivot, 3, false).withTimeout(3),
         Commands.waitSeconds(1),
 
         // Step 4: Pivot To Ground
