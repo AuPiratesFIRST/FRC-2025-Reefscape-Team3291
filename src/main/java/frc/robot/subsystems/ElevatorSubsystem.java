@@ -251,7 +251,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorMotorLeader.setVoltage(voltage);
     SmartDashboard.putNumber("elevatorVoltage", voltage);
   }
-
+        public void setDemoModeConstraints() {
+        double demoMaxVelocity = Constants.Elevator.demoMaxVelocity; // Define this in Constants
+        double demoMaxAcceleration = Constants.Elevator.demoMaxAcceleration; // Define this in Constants
+        this.trapezoidConstraints = new TrapezoidProfile.Constraints(demoMaxVelocity, demoMaxAcceleration);
+        this.profiledPIDController = new ProfiledPIDController(elevatorkp, elevatorki, elevatorkd, this.trapezoidConstraints);
+    }
   @Override
   public void periodic() {
     goToPosition();

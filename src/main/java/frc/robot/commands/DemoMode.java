@@ -26,10 +26,16 @@ public class DemoMode {
     ColorChanger colorChanger,
     BooleanSupplier stopCondition
   ) {
+
+    elevator.setDemoModeConstraints(); // Set slower constraints for demo mode
+
     return Commands.sequence(
-     
-     new PivotToStow(intakePivot).withTimeout(2),
-        Commands.waitSeconds(1),
+      
+      Commands.waitSeconds(3),
+
+        // Initial Stow Position
+     new PivotToGround(intakePivot).withTimeout(2),
+        Commands.waitSeconds(2),
 
         // Step 1: Go to Top
         new GoToTop(elevator).withTimeout(30),
