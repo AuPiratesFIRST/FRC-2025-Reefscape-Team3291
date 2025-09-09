@@ -1,4 +1,4 @@
-cpackage frc.robot.commands;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -27,13 +27,17 @@ public class DemoMode {
     BooleanSupplier stopCondition
   ) {
     return Commands.sequence(
+     
+     new PivotToStow(intakePivot).withTimeout(2),
+        Commands.waitSeconds(1),
+
         // Step 1: Go to Top
         new GoToTop(elevator).withTimeout(30),
         Commands.waitSeconds(1),
 
         // Step 2: Go to Ground
         new GoToGround(elevator).withTimeout(3),
-        Commands.waitSeconds(1),
+        Commands.waitSeconds(1), 
 
         // Step 3: Go to each floor using GoToFloor (manual triggers replaced with fixed target floors)
         new GoToFloor(elevator, intakePivot, () -> false, () -> false, () -> false, () -> false, 0).withTimeout(3),
