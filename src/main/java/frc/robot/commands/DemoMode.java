@@ -1,4 +1,4 @@
-package frc.robot.commands;
+cpackage frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,6 +14,8 @@ import frc.robot.subsystems.ColorChanger;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakePivotSubsystem;
 import frc.robot.subsystems.intake.IntakeMotorSubsystem;
+import java.util.function.BooleanSupplier;
+
 
 public class DemoMode {
   
@@ -21,7 +23,8 @@ public class DemoMode {
     ElevatorSubsystem elevator,
     IntakePivotSubsystem intakePivot,
     IntakeMotorSubsystem intakeMotor,
-    ColorChanger colorChanger
+    ColorChanger colorChanger,
+    BooleanSupplier stopCondition
   ) {
     return Commands.sequence(
         // Step 1: Go to Top
@@ -60,6 +63,6 @@ public class DemoMode {
 
         // Step 8: Color changing (run for a few seconds)
         new ColorChangingCMD(colorChanger).withTimeout(5)
-    );
+    ).repeatedly().until(stopCondition);
   }
 }
