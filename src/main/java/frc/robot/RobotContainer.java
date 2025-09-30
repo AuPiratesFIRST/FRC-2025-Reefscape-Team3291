@@ -82,7 +82,7 @@ public class RobotContainer {
   private final Command intakeCMD = new IntakeCMD(intakeMotorSubsystem);
   private final GoToFloor goToFloor = new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.pov(180).getAsBoolean(), () -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean());
   private final ColorChangingCMD colorChangingCMD = new ColorChangingCMD(colorChanger);
-  private final Command demoModeCMD = DemoMode.build(elevatorSubsystem, intakePivotSubsystem, intakeMotorSubsystem, colorChanger);
+  // private final Command demoModeCMD = DemoMode.build(elevatorSubsystem, intakePivotSubsystem, intakeMotorSubsystem, colorChanger);
 
 //     private final RunMotorCommand runMotorCommand = new RunMotorCommand(
 //         runMotorSub,
@@ -180,14 +180,14 @@ public class RobotContainer {
 
     configureBindings();
     colorChanger.setDefaultCommand(colorChangingCMD);
-    controller1.button(Constants.ButtonList.b)
-  .onTrue(DemoMode.build(
-    elevatorSubsystem,
-    intakePivotSubsystem,
-    intakeMotorSubsystem,
-    colorChanger,
-    controller1.button(Constants.ButtonList.b)::getAsBoolean
-));
+    // controller1.button(Constants.ButtonList.b)
+//   .onTrue(DemoMode.build(
+//     elevatorSubsystem,
+//     intakePivotSubsystem,
+//     intakeMotorSubsystem,
+//     colorChanger,
+//     controller1.button(Constants.ButtonList.b)::getAsBoolean
+// ));
     // controller1.button(Constants.ButtonList.b).onTrue(demoModeCMD);
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("goToGroundFloor", new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.povDown().getAsBoolean(), () -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 0).until(() -> elevatorSubsystem.ifAtFloor(Elevator.groundFloor)));
