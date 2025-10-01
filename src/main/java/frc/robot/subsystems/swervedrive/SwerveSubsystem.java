@@ -17,11 +17,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -30,7 +27,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -61,8 +57,9 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase {
 
   File directory = new File(Filesystem.getDeployDirectory(), "swerve3291");
-   SwerveDrive swerveDrive;
-  //private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  SwerveDrive swerveDrive;
+  // private final AprilTagFieldLayout aprilTagFieldLayout =
+  // AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
   private final boolean visionDriveTest = false;
 
   private Vision vision;
@@ -179,9 +176,9 @@ public class SwerveSubsystem extends SubsystemBase {
           new PPHolonomicDriveController(
               // PPHolonomicController is the built in path following controller for holonomic
               // drive trains
-              new PIDConstants(3, 0.0, 0.0),
+              new PIDConstants(1.5, 0.0, 0.0),
               // Translation PID constants
-              new PIDConstants(3, 0.0, 0.0)
+              new PIDConstants(1.5, 0.0, 0.0)
           // Rotation PID constants
           ),
           config,
@@ -194,7 +191,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
             var alliance = DriverStation.getAlliance();
             if (alliance.isPresent()) {
-              return alliance.get() == DriverStation.Alliance.Blue;
+              return alliance.get() == DriverStation.Alliance.Red;
             }
             return false;
           },
