@@ -11,6 +11,24 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "goToFourthFloor"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "goToGroundFloor"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "R2 to CSB"
@@ -20,6 +38,18 @@
           "type": "path",
           "data": {
             "pathName": "CSB to R4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "goToFourthFloor"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "goToGroundFloor"
           }
         },
         {
