@@ -17,12 +17,6 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.0
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "goToGroundFloor"
@@ -35,27 +29,33 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "CSB to R4"
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "goToFourthFloor"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "goToGroundFloor"
+            "waitTime": 5.0
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "R4 to CSB"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
           }
         },
         {

@@ -5,7 +5,18 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import static edu.wpi.first.math.util.Units.degreesToRadians;
 import swervelib.math.Matter;
 
 /**
@@ -152,6 +163,37 @@ public final class Constants {
     public static final double ejectTimeToStop = 0.052;
   }
   
+  public static class Vision {
+    public static final Transform3d ROBOT_TO_CAMERA = new Transform3d(
+        new Translation3d(0.5, 0.0, 0.5), // Example values - measure your actual camera position
+        new Rotation3d(0.0, 0.0, 0.0)
+    ); 
+
+    public static final Transform3d APRILTAG_CAMERA_TO_ROBOT = new Transform3d(
+      new Translation3d(-0.06, 0.2, -0.2127),
+      new Rotation3d(0.0, degreesToRadians(15.0), degreesToRadians(-3.0)));
+
+    public static final Pose2d BLUE_START_POSE = new Pose2d(8.05, 4.5, Rotation2d.fromDegrees(180)); // Example
+    public static final Pose2d RED_START_POSE = new Pose2d(9.5, 2.5, Rotation2d.fromDegrees(0));  // Example
+
+    public static final int TARGET_TAG_ID = 12;
+    public static final double CAMERA_HEIGHT = 0.5; // meters
+    public static final double TAG_HEIGHT = 1.0; // meters
+    
+    public static final Transform3d kRobotToCam =
+            new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+
+    public static final AprilTagFieldLayout APRILTAG_FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+
+    // PID Constants (tune these per robot)
+    public static final double AUTO_ALIGN_kP = 0.8;
+    public static final double AUTO_ALIGN_kI = 0.0;
+    public static final double AUTO_ALIGN_kD = 0.1;
+    
+    // The standard deviations of our vision estimated poses, which affect correction rate
+    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(30));
+    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.3, 0.3, Units.degreesToRadians(10));
+  }
 
   public final static class Lighting {
     public final static int lightingPort = 2;

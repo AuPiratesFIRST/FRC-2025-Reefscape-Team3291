@@ -4,188 +4,232 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.Constants;
-import frc.robot.subsystems.LimelightHelpers;
-import frc.robot.subsystems.LimelightHelpers.LimelightResults;
-import frc.robot.subsystems.LimelightHelpers.LimelightTarget_Fiducial;
+import java.util.List;
+import java.util.Optional;
 
-//import com.revrobotics.CANSparkLowLevel.MotorType;
-//import com.revrobotics.CANSparkMax;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.EstimatedRobotPose;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.LimelightHelpers.LimelightTarget_Fiducial;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
+import frc.robot.Constants;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class VisionSubsystem extends SubsystemBase {
-  /** Creates a new VisionSubsystem. */
+    // Use a consistent camera name variable
+    private static final String CAMERA_NAME = "limelight-front-3291";
+    private final PhotonCamera photonCamera;
+    private PhotonPoseEstimator photonPoseEstimator;
 
-    public double AimkP = .035;
-    public double AimkI = 0.0;
-    public double AimkD = 0.0007;
+    private Field2d field2d = new Field2d();
+    private Field2d estimatedPoseField = new Field2d();
 
-    public double dkP = 0.1;
-    public double dkI = 0.0;
-    public double dkD = 0.0001;
+    // Logging fields (set these up as appropriate)
+    private DoubleArrayLogEntry visionPose3dLog;
+    private DoubleArrayLogEntry robotPose3dLog;
 
-    public PIDController AimvisionPID;
-    public PIDController distancePID;
+    // Standard deviation matrices for estimator uncertainty (ensure these are
+    // defined properly)
+    private Matrix<N3, N1> curStdDevs;
+    private final Matrix<N3, N1> kSingleTagStdDevs = Constants.Vision.kSingleTagStdDevs;
+    private final Matrix<N3, N1> kMultiTagStdDevs = Constants.Vision.kMultiTagStdDevs;
 
-   // public CANSparkMax testMotor;
+    public VisionSubsystem() {
+        // Initialize the PhotonCamera using the name defined in constants or UI
+        photonCamera = new PhotonCamera(CAMERA_NAME);
 
-    public  NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+        System.out.println("Initializing VisionSubsystem - Is simulation? " + RobotBase.isReal());
 
-   public LimelightResults limelight = LimelightHelpers.getLatestResults("limelight");
+        // Initialize the AprilTag field layout (for 2025 Reefscape)
+        // aprilTagFieldLayout =
+        // AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-  public VisionSubsystem() {
-    //tx is horizontal value of target, ty is vertical value of target, ta is area, ts is skew of target, tv is validity of target
+        if (photonCamera.isConnected()) {
+            SmartDashboard.putString("Vision/CameraStatus", "Connected");
+        } else {
+            SmartDashboard.putString("Vision/CameraStatus", "Not Connected");
+        }
 
-    LimelightHelpers.setPipelineIndex("limelight",0);
-    NetworkTableEntry tx = table.getEntry("tx");
-    NetworkTableEntry ty = table.getEntry("ty");
-    NetworkTableEntry ta = table.getEntry("ta");
-    NetworkTableEntry targetpose_cameraspace = table.getEntry("targetpose_cameraspace");
-    
-    //read values periodically
-    double x = tx.getDouble(0.0);
-    double y = ty.getDouble(0.0);
-    double area = ta.getDouble(0.0);
-    
-    //post to smart dashboard periodically
-    SmartDashboard.putNumber("LimelightX", x);
-    SmartDashboard.putNumber("LimelightY", y);
-    SmartDashboard.putNumber("LimelightArea", area);
+        // Initialize the PhotonPoseEstimator with the field layout, strategy, camera,
+        // and transform.
+        photonPoseEstimator = new PhotonPoseEstimator(
+                AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                Constants.Vision.APRILTAG_CAMERA_TO_ROBOT);
 
-    // Initializing the angle motor PID Controller with PID values
-    this.AimvisionPID = new PIDController(
-      AimkP,
-      AimkI,
-      AimkD
-    );
+        photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
-    this.distancePID = new PIDController(
-      dkP,
-      dkI,
-      dkD
-    );
+        // Initialize SmartDashboard components
+        SmartDashboard.putData("Vision/Field", field2d);
+        SmartDashboard.putData("Vision/EstimatedPose", estimatedPoseField);
 
-  }
+        // Initialize logging for AdvantageScope 3D data
+        DataLog log = DataLogManager.getLog();
+        visionPose3dLog = new DoubleArrayLogEntry(log, "Vision/EstimatedPose3d");
+        robotPose3dLog = new DoubleArrayLogEntry(log, "Robot/Pose3d");
 
-public double proportionalAiming() {    
-    // tx ranges from (-hfov/2) to (hfov/2) in degrees. If your target is on the rightmost edge of 
-    // your limelight 3 feed, tx should return roughly 21 degrees.
-    double targetingAngularVelocity = LimelightHelpers.getTX("limelight");
-    //double targetingAngularVelocity = table.getEntry("tx").getDouble(0);
-    SmartDashboard.putNumber("TX", LimelightHelpers.getTX("limelight"));//checking the value
-
-    targetingAngularVelocity = AimvisionPID.calculate(targetingAngularVelocity);//plug it in to pid 
-
-    //invert since tx is positive when the target is to the right of the crosshair
-    targetingAngularVelocity *= -1.0;
-
-    return targetingAngularVelocity;
-  }
-
-  // simple proportional ranging control with Limelight's "ty" value
-  // this works best if your Limelight's mount height and target mount height are different.
-  // if your limelight and target are mounted at the same or similar heights, use "ta" (area) for target ranging rather than "ty"
-  public double getLimelightSpeed() {    
-    double kP = .1;
-    double targetingForwardSpeed = LimelightHelpers.getTY("limelight") * kP;
-    targetingForwardSpeed *= -1.0;
-    return targetingForwardSpeed;
-  }
-
-  //formula to get the distance from a certain point, to then use in percise movement (you lowkey could just use the formula above but like this works too)
-  // public double getDistanceToSpeaker() {
-  //   double ty = LimelightHelpers.getTY("limelight");
-  //   double targetOffsetAngle_Vertical = ty;//offset from the crosshair
-
-  //   double desiredDistanceInches = Constants.Vision.desiredDistanceSpeakerInches;//the subwoofer + 6 inches 
-
-  //   // how many degrees back is your limelight rotated from perfectly vertical?
-  //   double limelightMountAngleDegrees = Constants.Vision.limelightMountAngleDegrees;
-
-  //   // distance from the center of the Limelight lens to the floor
-  //   double limelightLensHeightInches = Constants.Vision.limelightLensHeightInches;
-
-  //   // distance from the target to the floor
-  //   double goalHeightInches = Constants.Vision.goalHeightInches; //accounts for the lowest edge of the speaker's hood
-
-  //   //mounting angle plus the offset from the crosshair which should maybe be inverted?
-  //   double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
-  //   double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
-
-  //   //calculate distance
-  //   double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
-  //   //calculate motor output to go to desired distance smooooothly (little extra might just need the p but like why not)
-  //   double distance = distancePID.calculate(distanceFromLimelightToGoalInches, desiredDistanceInches);
-  //   //return that distance!!!!
-  //   return distance;
-  // }
-  // public double getDistanceToAmp() {
-  //   double ty = LimelightHelpers.getTY("limelight");
-  //   double targetOffsetAngle_Vertical = ty;//offset from the crosshair
-
-  //   double desiredDistanceInches = Constants.Vision.desiredDistanceSpeakerInches;//the subwoofer + 6 inches 
-
-  //   // how many degrees back is your limelight rotated from perfectly vertical?
-  //   double limelightMountAngleDegrees = Constants.Vision.limelightMountAngleDegrees;
-
-  //   // distance from the center of the Limelight lens to the floor
-  //   double limelightLensHeightInches = Constants.Vision.limelightLensHeightInches;
-
-  //   // distance from the target to the floor
-  //   double goalHeightInches = Constants.Vision.goalHeightInches; //accounts for the lowest edge of the speaker's hood
-
-  //   //mounting angle plus the offset from the crosshair which should maybe be inverted?
-  //   double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
-  //   double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
-
-  //   //calculate distance
-  //   double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
-  //   //calculate motor output to go to desired distance smooooothly (little extra might just need the p but like why not)
-  //   double distance = distancePID.calculate(distanceFromLimelightToGoalInches, desiredDistanceInches);
-  //   //return that distance!!!!
-  //   return distance;
-  // }
-
-  //gets the TX to then use in the drive to apriltag commands
-  public double getTXSwerve() {
-    return LimelightHelpers.getTX("limelight");
-  }
-
-  public double getTYSwerve() {
-    return LimelightHelpers.getTY("limelight");
-  }
-
-  //checks if the intended apriltag id has been found
-  public boolean isThereATarget() {
-
-    if (LimelightHelpers.getTV("limelight") == true){
-      return true;
-    }
-    else {
-      return false;
+        // Start a background thread to update the connection status of the camera
+        new Thread(() -> {
+            while (true) {
+                boolean connected = photonCamera != null && photonCamera.isConnected();
+                SmartDashboard.putBoolean("Vision/CameraConnected", connected);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }).start();
     }
 
-  }
+    public void Init() {
+        if (RobotBase.isReal()) {
+            Alliance alliance = getAlliance();
+            Pose2d startPose = (alliance == Alliance.Blue) ? Constants.Vision.BLUE_START_POSE
+                    : Constants.Vision.RED_START_POSE;
 
-  public double getApriltagId() {
+            resetPose(startPose);
+            estimatedPoseField.setRobotPose(startPose);
+        }
+    }
 
-    double id = LimelightHelpers.getFiducialID("limelight");
-    return id;
+    public PhotonPoseEstimator getPhotonEstimator() {
+        return photonPoseEstimator;
+    }
 
-  }
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+        Optional<EstimatedRobotPose> visionEst = Optional.empty();
 
-  
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+        if (photonCamera == null || !photonCamera.isConnected()) {
+            return visionEst;
+        }
+
+        var result = photonCamera.getLatestResult();
+        if (result.hasTargets()) {
+            visionEst = photonPoseEstimator.update(result);
+            SmartDashboard.putString("Vision/TargetStatus", "Targets Detected");
+            updateEstimationStdDevs(visionEst, result.getTargets());
+
+            if (visionEst.isPresent()) {
+                // Log the estimated 3D pose
+                Pose3d estimatedPose3d = visionEst.get().estimatedPose;
+                visionPose3dLog.append(pose3dToDoubleArray(estimatedPose3d));
+            }
+        } else {
+            SmartDashboard.putString("Vision/TargetStatus", "No Targets Detected");
+        }
+
+        return visionEst;
+    }
+
+    private Alliance getAlliance() {
+        return DriverStation.getAlliance().orElse(Alliance.Blue); // Default to Blue if not set
+    }
+
+    public Pose2d getTagToGoal(int tagId) {
+        // Replace with your actual logic to compute a Pose2d for the given tagId
+        return new Pose2d(0, 0, new Rotation2d(0));
+    }
+
+    private double[] pose3dToDoubleArray(Pose3d pose) {
+        return new double[] {
+                pose.getX(), pose.getY(), pose.getZ(),
+                pose.getRotation().getQuaternion().getW(),
+                pose.getRotation().getQuaternion().getX(),
+                pose.getRotation().getQuaternion().getY(),
+                pose.getRotation().getQuaternion().getZ()
+        };
+    }
+
+    public void logRobotPose3d(Pose3d pose) {
+        robotPose3dLog.append(pose3dToDoubleArray(pose));
+    }
+
+    private void updateEstimationStdDevs(
+            Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
+        if (estimatedPose.isEmpty()) {
+            curStdDevs = kSingleTagStdDevs;
+            return;
+        }
+
+        var estStdDevs = kSingleTagStdDevs;
+        int numTags = 0;
+        double avgDist = 0;
+
+        for (var tgt : targets) {
+            var tagPose = photonPoseEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
+            if (tagPose.isEmpty())
+                continue;
+
+            numTags++;
+            avgDist += tagPose.get().toPose2d().getTranslation()
+                    .getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
+        }
+
+        if (numTags == 0) {
+            curStdDevs = kSingleTagStdDevs;
+        } else {
+            avgDist /= numTags;
+            estStdDevs = numTags > 1 ? kMultiTagStdDevs : kSingleTagStdDevs;
+            estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+            curStdDevs = estStdDevs;
+        }
+    }
+
+    public Matrix<N3, N1> getEstimationStdDevs() {
+        return curStdDevs;
+    }
+
+    public void resetPose(Pose2d newPose) {
+        field2d.setRobotPose(newPose);
+        estimatedPoseField.setRobotPose(newPose);
+    }
+
+    public void updateField2d(Pose2d robotPose) {
+        field2d.setRobotPose(robotPose);
+        estimatedPoseField.setRobotPose(getEstimatedGlobalPose()
+                .map(est -> est.estimatedPose.toPose2d())
+                .orElse(new Pose2d()));
+
+        var visibleTags = photonCamera.getLatestResult().getTargets().stream()
+                .map(PhotonTrackedTarget::getFiducialId)
+                .toList();
+
+        SmartDashboard.putStringArray("Vision/Visible Tags", visibleTags.stream()
+                .map(String::valueOf)
+                .toArray(String[]::new));
+
+        SmartDashboard.updateValues();
+    }
+
+    public void updateOdometry(SwerveSubsystem drivebase) {
+        Optional<EstimatedRobotPose> visionEst = getEstimatedGlobalPose();
+        visionEst.ifPresent(est -> drivebase.addVisionMeasurement(
+                est.estimatedPose.toPose2d(),
+                est.timestampSeconds,
+                getEstimationStdDevs()));
+    }
+
+    public PhotonCamera getCamera() {
+        return photonCamera;
+    }
 }

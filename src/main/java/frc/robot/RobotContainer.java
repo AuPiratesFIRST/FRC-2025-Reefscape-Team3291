@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Elevator;
 import frc.robot.Constants.OperatorConstants;
+import edu.wpi.first.networktables.NetworkTableInstance;
 // import frc.robot.commands.RunMotorCommand;
 // import frc.robot.subsystems.RunMotorSub;
 import frc.robot.commands.ElevatorCMDs.GoToFloor;
@@ -50,7 +51,6 @@ import swervelib.SwerveInputStream;
 import frc.robot.commands.DemoMode;
 import java.util.function.BooleanSupplier;
 
-
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -61,227 +61,301 @@ import java.util.function.BooleanSupplier;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  final CommandXboxController driverXbox = new CommandXboxController(0);
-  public CommandJoystick controller1 = new CommandJoystick(1);
-  public VisionSubsystem visionSubsystem = new VisionSubsystem();
-  private final SendableChooser<Command> autoChooser;
-  // public RunMotorSub runMotorSub = new RunMotorSub();
-  public ColorChanger colorChanger = new ColorChanger();
-  // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem drivebase = new SwerveSubsystem();
+    // Replace with CommandPS4Controller or CommandJoystick if needed
+    final CommandXboxController driverXbox = new CommandXboxController(0);
+    public CommandJoystick controller1 = new CommandJoystick(1);
+    public VisionSubsystem visionSubsystem = new VisionSubsystem();
+    private final SendableChooser<Command> autoChooser;
+    // public RunMotorSub runMotorSub = new RunMotorSub();
+    public ColorChanger colorChanger = new ColorChanger();
+    // The robot's subsystems and commands are defined here...
+    private final SwerveSubsystem drivebase = new SwerveSubsystem();
 
-  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final IntakePivotSubsystem intakePivotSubsystem = new IntakePivotSubsystem();
-  private final IntakeMotorSubsystem intakeMotorSubsystem = new IntakeMotorSubsystem();
-  private final Command elevatorGoToTop = new GoToTop(elevatorSubsystem);
-  private final Command elevatorGoToGround = new GoToGround(elevatorSubsystem);
-  private final Command ResetElevatorEncoder = new ResetElevatorEncoder(elevatorSubsystem);
-  private final Command pivotToGround = new PivotToGround(intakePivotSubsystem);
-  private final Command pivotToStow = new PivotToStow(intakePivotSubsystem);
-  private final Command eSpitCMD = new ESpitCMD(intakeMotorSubsystem);
-  private final Command intakeCMD = new IntakeCMD(intakeMotorSubsystem);
-  private final GoToFloor goToFloor = new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.pov(180).getAsBoolean(), () -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean());
-  private final ColorChangingCMD colorChangingCMD = new ColorChangingCMD(colorChanger);
-  private final BooleanSupplier stopCondition = () -> controller1.button(Constants.ButtonList.y).getAsBoolean();
-  private final Command demoModeCMD = DemoMode.build (elevatorSubsystem, intakePivotSubsystem, intakeMotorSubsystem, colorChanger,stopCondition);
+    private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+    private final IntakePivotSubsystem intakePivotSubsystem = new IntakePivotSubsystem();
+    private final IntakeMotorSubsystem intakeMotorSubsystem = new IntakeMotorSubsystem();
+    private final Command elevatorGoToTop = new GoToTop(elevatorSubsystem);
+    private final Command elevatorGoToGround = new GoToGround(elevatorSubsystem);
+    private final Command ResetElevatorEncoder = new ResetElevatorEncoder(elevatorSubsystem);
+    private final Command pivotToGround = new PivotToGround(intakePivotSubsystem);
+    private final Command pivotToStow = new PivotToStow(intakePivotSubsystem);
+    private final Command eSpitCMD = new ESpitCMD(intakeMotorSubsystem);
+    private final Command intakeCMD = new IntakeCMD(intakeMotorSubsystem);
+    private final GoToFloor goToFloor = new GoToFloor(elevatorSubsystem, intakePivotSubsystem,
+            () -> controller1.povUp().getAsBoolean(), () -> controller1.pov(180).getAsBoolean(),
+            () -> controller1.button(Constants.ButtonList.start).getAsBoolean(),
+            () -> controller1.button(Constants.ButtonList.a).getAsBoolean());
+    private final ColorChangingCMD colorChangingCMD = new ColorChangingCMD(colorChanger);
+    private final BooleanSupplier stopCondition = () -> controller1.button(Constants.ButtonList.y).getAsBoolean();
+    private final Command demoModeCMD = DemoMode.build(elevatorSubsystem, intakePivotSubsystem, intakeMotorSubsystem,
+            colorChanger, stopCondition);
 
-//     private final RunMotorCommand runMotorCommand = new RunMotorCommand(
-//         runMotorSub,
-//         () -> 2 // Example: Getting speed from joystick Y-axis
-// );
+    // private final RunMotorCommand runMotorCommand = new RunMotorCommand(
+    // runMotorSub,
+    // () -> 2 // Example: Getting speed from joystick Y-axis
+    // );
 
-  /**
-   * Converts driver input into a field-relative ChassisSpeeds that is controlled
-   * by angular velocity.
-   */
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-      () -> driverXbox.getLeftY() * 1,
-      () -> driverXbox.getLeftX() * 1)
-      .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
-      .deadband(OperatorConstants.DEADBAND)
-      .scaleTranslation(0.8)// Decideds robot (speed)
-      .allianceRelativeControl(true);
+    // NetworkTables publishers for AdvantageScope 3D field visualization
+    private edu.wpi.first.networktables.DoublePublisher elevatorPositionPublisher;
+    private edu.wpi.first.networktables.DoublePublisher intakePivotPositionPublisher;
 
-  /**
-   * Clone's the angular velocity input stream and converts it to a fieldRelative
-   * input stream.
-   */
-  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(() -> driverXbox.getRawAxis(4),
-  driverXbox::getRightY)
-  .headingWhile(true);
-  // SwerveInputStream driveDirectAngle =
-  // driveAngularVelocity.copy().withControllerHeadingAxis(() ->
-  // driverJoystick.getRawAxis(4),
-  // () -> driverJoystick.getRawAxis(5))
-  // .headingWhile(true);
+    /**
+     * Converts driver input into a field-relative ChassisSpeeds that is controlled
+     * by angular velocity.
+     */
+    SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+            () -> driverXbox.getLeftY() * 1,
+            () -> driverXbox.getLeftX() * 1)
+            .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
+            .deadband(OperatorConstants.DEADBAND)
+            .scaleTranslation(0.8)// Decideds robot (speed)
+            .allianceRelativeControl(true);
 
-  /**
-   * Clone's the angular velocity input stream and converts it to a robotRelative
-   * input stream.
-   */
-  SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
-      .allianceRelativeControl(false);
+    /**
+     * Clone's the angular velocity input stream and converts it to a fieldRelative
+     * input stream.
+     */
+    SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
+            .withControllerHeadingAxis(() -> driverXbox.getRawAxis(4),
+                    driverXbox::getRightY)
+            .headingWhile(true);
+    // SwerveInputStream driveDirectAngle =
+    // driveAngularVelocity.copy().withControllerHeadingAxis(() ->
+    // driverJoystick.getRawAxis(4),
+    // () -> driverJoystick.getRawAxis(5))
+    // .headingWhile(true);
 
-  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
-  () -> -driverXbox.getLeftY(),
-  () -> -driverXbox.getLeftX())
-  .withControllerRotationAxis(() -> driverXbox.getRawAxis(
-      2))
-      .deadband(OperatorConstants.DEADBAND)
-      .scaleTranslation(0.8)
-      .allianceRelativeControl(true);
-  // SwerveInputStream driveAngularVelocityKeyboard =
-  // SwerveInputStream.of(drivebase.getSwerveDrive(),
-  // () -> driverJoystick.getRawAxis(1),
-  // () -> driverJoystick.getRawAxis(0))
-  // .withControllerRotationAxis(() -> driverJoystick.getRawAxis(4))
-  // .deadband(OperatorConstants.DEADBAND)
-  // .scaleTranslation(0.8)
-  // .allianceRelativeControl(true);
-  //Derive the heading axis with math!
-  SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
-      .withControllerHeadingAxis(() -> Math.sin(
-          driverXbox.getRawAxis(
-              2) *
-              Math.PI)
-          *
-          (Math.PI *
-              2),
-          () -> Math.cos(
-              driverXbox.getRawAxis(
-                  2) *
-                  Math.PI)
-              *
-              (Math.PI *
-                  2))
-      .headingWhile(true);
+    /**
+     * Clone's the angular velocity input stream and converts it to a robotRelative
+     * input stream.
+     */
+    SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
+            .allianceRelativeControl(false);
 
-  // SwerveInputStream driveDirectAngleKeyboard =
-  // driveAngularVelocityKeyboard.copy()
-  // .withControllerHeadingAxis(() ->
-  // Math.sin(
-  // driverJoystick.getRawAxis(4) *
-  // Math.PI) *
-  // (Math.PI *
-  // 2),
-  // () ->
-  // Math.cos(
-  // driverJoystick.getRawAxis(4) *
-  // Math.PI) *
-  // (Math.PI *
-  // 2))
-  // .headingWhile(true);
+    SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
+            () -> -driverXbox.getLeftY(),
+            () -> -driverXbox.getLeftX())
+            .withControllerRotationAxis(() -> driverXbox.getRawAxis(
+                    2))
+            .deadband(OperatorConstants.DEADBAND)
+            .scaleTranslation(0.8)
+            .allianceRelativeControl(true);
+    // SwerveInputStream driveAngularVelocityKeyboard =
+    // SwerveInputStream.of(drivebase.getSwerveDrive(),
+    // () -> driverJoystick.getRawAxis(1),
+    // () -> driverJoystick.getRawAxis(0))
+    // .withControllerRotationAxis(() -> driverJoystick.getRawAxis(4))
+    // .deadband(OperatorConstants.DEADBAND)
+    // .scaleTranslation(0.8)
+    // .allianceRelativeControl(true);
+    // Derive the heading axis with math!
+    SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
+            .withControllerHeadingAxis(() -> Math.sin(
+                    driverXbox.getRawAxis(
+                            2) *
+                            Math.PI)
+                    *
+                    (Math.PI *
+                            2),
+                    () -> Math.cos(
+                            driverXbox.getRawAxis(
+                                    2) *
+                                    Math.PI)
+                            *
+                            (Math.PI *
+                                    2))
+            .headingWhile(true);
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    // Configure the trigger bindings
+    // SwerveInputStream driveDirectAngleKeyboard =
+    // driveAngularVelocityKeyboard.copy()
+    // .withControllerHeadingAxis(() ->
+    // Math.sin(
+    // driverJoystick.getRawAxis(4) *
+    // Math.PI) *
+    // (Math.PI *
+    // 2),
+    // () ->
+    // Math.cos(
+    // driverJoystick.getRawAxis(4) *
+    // Math.PI) *
+    // (Math.PI *
+    // 2))
+    // .headingWhile(true);
 
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
+        // Configure the trigger bindings
 
-    configureBindings();
-    colorChanger.setDefaultCommand(colorChangingCMD);
-   
-    controller1.button(Constants.ButtonList.b).onTrue(demoModeCMD);
-    DriverStation.silenceJoystickConnectionWarning(true);
-    NamedCommands.registerCommand("goToGroundFloor", new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.povDown().getAsBoolean(), () -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 0).until(() -> elevatorSubsystem.ifAtFloor(Elevator.groundFloor)));
-    NamedCommands.registerCommand("goToSecondFloor", new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.povDown().getAsBoolean(),() -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 1).until(() -> elevatorSubsystem.ifAtFloor(Elevator.secondFloor)));
-    NamedCommands.registerCommand("goToThirdFloor", new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.povDown().getAsBoolean(),() -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 2).until(() -> elevatorSubsystem.ifAtFloor(Elevator.thirdFloor)));
-    NamedCommands.registerCommand("goToFourthFloor", new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(), () -> controller1.povDown().getAsBoolean(),() -> controller1.button(Constants.ButtonList.start).getAsBoolean(), () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 3).until(() -> elevatorSubsystem.ifAtFloor(Elevator.fourthFloor)));
-    NamedCommands.registerCommand("intakeCMD", intakeCMD);
-    NamedCommands.registerCommand("eSpitCMD", eSpitCMD);
-    NamedCommands.registerCommand("c", eSpitCMD);
+        configureBindings();
+        colorChanger.setDefaultCommand(colorChangingCMD);
 
+        controller1.button(Constants.ButtonList.b).onTrue(demoModeCMD);
+        DriverStation.silenceJoystickConnectionWarning(true);
+        NamedCommands.registerCommand("goToGroundFloor",
+                new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(),
+                        () -> controller1.povDown().getAsBoolean(),
+                        () -> controller1.button(Constants.ButtonList.start).getAsBoolean(),
+                        () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 0)
+                        .until(() -> elevatorSubsystem.ifAtFloor(Elevator.groundFloor))
+                        .withTimeout(8.0));
+        NamedCommands.registerCommand("goToSecondFloor",
+                new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(),
+                        () -> controller1.povDown().getAsBoolean(),
+                        () -> controller1.button(Constants.ButtonList.start).getAsBoolean(),
+                        () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 1)
+                        .until(() -> elevatorSubsystem.ifAtFloor(Elevator.secondFloor))
+                        .withTimeout(8.0));
+        NamedCommands.registerCommand("goToThirdFloor",
+                new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(),
+                        () -> controller1.povDown().getAsBoolean(),
+                        () -> controller1.button(Constants.ButtonList.start).getAsBoolean(),
+                        () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 2)
+                        .until(() -> elevatorSubsystem.ifAtFloor(Elevator.thirdFloor))
+                        .withTimeout(8.0));
+        NamedCommands.registerCommand("goToFourthFloor",
+                new GoToFloor(elevatorSubsystem, intakePivotSubsystem, () -> controller1.povUp().getAsBoolean(),
+                        () -> controller1.povDown().getAsBoolean(),
+                        () -> controller1.button(Constants.ButtonList.start).getAsBoolean(),
+                        () -> controller1.button(Constants.ButtonList.a).getAsBoolean(), 3)
+                        .until(() -> elevatorSubsystem.ifAtFloor(Elevator.fourthFloor))
+                        .withTimeout(10.0));
+        NamedCommands.registerCommand("intakeCMD", intakeCMD);
+        NamedCommands.registerCommand("eSpitCMD", eSpitCMD);
+        NamedCommands.registerCommand("c", eSpitCMD);
 
-    //NamedCommands.registerCommand("RunMotor", new RunMotorCommand(runMotorSub, () -> 2).withTimeout(5));
+        // NamedCommands.registerCommand("RunMotor", new RunMotorCommand(runMotorSub, ()
+        // -> 2).withTimeout(5));
 
-    // Build an auto chooser. This will use Commands.none() as the default option.
-    autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Chooser", autoChooser);
-    //controller0.button(2).whileTrue(runMotorCommand);
-  }
+        // Build an auto chooser. This will use Commands.none() as the default option.
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+        // controller0.button(2).whileTrue(runMotorCommand);
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-   * an arbitrary predicate, or via the
-   * named factories in
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses
-   * for
-   * {@link CommandXboxController
-   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
-   * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick
-   * Flight joysticks}.
-   */
-  private void configureBindings() {
-
-    Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-    Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
-    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngle);
-    Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-    Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngleKeyboard);
-
-    // if (RobotBase.isSimulation()) {
-    //   drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
-    // } else {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-    // }
-
-    // if (Robot.isSimulation()) {
-    //   driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-    //   driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-
-    // }
-
-    if (DriverStation.isTest()) {
-      // drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
-
-      // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      // driverXbox.y().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
-      // driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      // driverXbox.back().whileTrue(drivebase.centerModulesCommand());
-      // driverXbox.leftBumper().onTrue(Commands.none());
-      // driverXbox.rightBumper().onTrue(Commands.none());
-    } else {
-      driverXbox.rightBumper().toggleOnTrue(new StartEndCommand(
-        () -> driveAngularVelocity.scaleTranslation(0.2),  // On press
-        () -> driveAngularVelocity.scaleTranslation(0.8)   // On release
-      ));
-
-      controller1.button(Constants.ButtonList.r3).whileTrue(ResetElevatorEncoder);//should be commented out after testing
-      driverXbox.x().whileTrue(pivotToGround);
-      driverXbox.b().whileTrue(pivotToStow);
-      controller1.povLeft().toggleOnTrue(eSpitCMD);
-      controller1.povRight().toggleOnTrue(intakeCMD);
-      elevatorSubsystem.setDefaultCommand(goToFloor);
-      intakePivotSubsystem.setDefaultCommand(goToFloor);
-      driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-      driverXbox.b().whileTrue(
-          drivebase.driveToPose(
-              new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
-      // driverXbox.start).whileTrue(Commands.none());
-      // driverXbox.back).whileTrue(Commands.none());
-      driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-     // driverXbox.rb).onTrue(Commands.none());
+        // Initialize struct publishers for AdvantageScope 3D field visualization
+        initializeStructPublishers();
     }
 
-  }
+    /**
+     * Use this method to define your trigger->command mappings. Triggers can be
+     * created via the
+     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+     * an arbitrary predicate, or via the
+     * named factories in
+     * {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses
+     * for
+     * {@link CommandXboxController
+     * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
+     * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick
+     * Flight joysticks}.
+     */
+    private void configureBindings() {
 
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    //return drivebase.getAutonomousCommand("Simple Command");
-    //return drivebase.getAutonomousCommand("Simple Auto");
-    return autoChooser.getSelected();
-  }
+        Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
+        Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+        Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
+        Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(
+                driveDirectAngle);
+        Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
+        Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+        Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(
+                driveDirectAngleKeyboard);
 
-  public void setMotorBrake(boolean brake) {
-    drivebase.setMotorBrake(brake);
-  }
+        // if (RobotBase.isSimulation()) {
+        // drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
+        // } else {
+        drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+        // }
+
+        // if (Robot.isSimulation()) {
+        // driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new
+        // Pose2d(3, 3, new Rotation2d()))));
+        // driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
+
+        // }
+
+        if (DriverStation.isTest()) {
+            // drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides
+            // drive command above!
+
+            // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
+            // drivebase).repeatedly());
+            // driverXbox.y().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
+            // driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+            // driverXbox.back().whileTrue(drivebase.centerModulesCommand());
+            // driverXbox.leftBumper().onTrue(Commands.none());
+            // driverXbox.rightBumper().onTrue(Commands.none());
+        } else {
+            driverXbox.rightBumper().toggleOnTrue(new StartEndCommand(
+                    () -> driveAngularVelocity.scaleTranslation(0.2), // On press
+                    () -> driveAngularVelocity.scaleTranslation(0.8) // On release
+            ));
+
+            controller1.button(Constants.ButtonList.r3).whileTrue(ResetElevatorEncoder);// should be commented out after
+                                                                                        // testing
+            driverXbox.x().whileTrue(pivotToGround);
+            driverXbox.b().whileTrue(pivotToStow);
+            controller1.povLeft().toggleOnTrue(eSpitCMD);
+            controller1.povRight().toggleOnTrue(intakeCMD);
+            elevatorSubsystem.setDefaultCommand(goToFloor);
+            intakePivotSubsystem.setDefaultCommand(goToFloor);
+            driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+            driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
+            driverXbox.b().whileTrue(
+                    drivebase.driveToPose(
+                            new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
+            // driverXbox.start).whileTrue(Commands.none());
+            // driverXbox.back).whileTrue(Commands.none());
+            driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+            // driverXbox.rb).onTrue(Commands.none());
+        }
+
+    }
+
+    public Command getAutonomousCommand() {
+        // An example command will be run in autonomous
+        // return drivebase.getAutonomousCommand("Simple Command");
+        // return drivebase.getAutonomousCommand("Simple Auto");
+        return autoChooser.getSelected();
+    }
+
+    public void setMotorBrake(boolean brake) {
+        drivebase.setMotorBrake(brake);
+    }
+
+    /**
+     * Initialize struct publishers for AdvantageScope 3D field visualization.
+     * Uses the modern struct format for seamless 3D field visualization.
+     */
+    private void initializeStructPublishers() {
+        NetworkTableInstance ntInstance = NetworkTableInstance.getDefault();
+
+        // Create NetworkTables publishers for 3D mechanism visualization
+        elevatorPositionPublisher = ntInstance
+                .getDoubleTopic("Elevator/Position")
+                .publish();
+
+        intakePivotPositionPublisher = ntInstance
+                .getDoubleTopic("IntakePivot/Position")
+                .publish();
+    }
+
+    /**
+     * Log mechanism data for AdvantageScope 3D field visualization.
+     * Uses the modern struct format for seamless 3D field visualization.
+     */
+    public void logMechanismData() {
+        // Publish mechanism data using modern struct format
+        elevatorPositionPublisher.set(elevatorSubsystem.elevatorEncoder.getDistance());
+        intakePivotPositionPublisher.set(intakePivotSubsystem.getCurrentAngle());
+
+        // Keep some SmartDashboard logging for debugging
+        SmartDashboard.putNumber("Elevator/Velocity", elevatorSubsystem.elevatorEncoder.getRate());
+        SmartDashboard.putString("Elevator/TargetFloor", elevatorSubsystem.floor_target.toString());
+        SmartDashboard.putString("IntakePivot/Target", intakePivotSubsystem.pivot_target.toString());
+        SmartDashboard.putNumber("IntakeMotor/Speed", intakeMotorSubsystem.intakeMotorMotor.get());
+        SmartDashboard.putString("ColorChanger/State", "Active");
+        
+    }
 }

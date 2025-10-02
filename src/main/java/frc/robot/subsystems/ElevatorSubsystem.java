@@ -2,7 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel;
@@ -22,7 +21,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.IntakePivotSubsystem.PivotTarget;
-
 
 public class ElevatorSubsystem extends SubsystemBase {
   /** Creates a new ElevatorSubsystem. */
@@ -79,51 +77,52 @@ public class ElevatorSubsystem extends SubsystemBase {
       Preferences.initDouble("algaeOffset", algaeOffset);
     }
     if (!Preferences.containsKey("elevatorSecondFloorHeight")) {
-        Preferences.initDouble("elevatorSecondFloorHeight", secondFloor);
+      Preferences.initDouble("elevatorSecondFloorHeight", secondFloor);
     }
     if (!Preferences.containsKey("elevatorThirdFloorHeight")) {
-        Preferences.initDouble("elevatorThirdFloorHeight", thirdFloor);
+      Preferences.initDouble("elevatorThirdFloorHeight", thirdFloor);
     }
     if (!Preferences.containsKey("elevatorFourthFloorHeight")) {
-        Preferences.initDouble("elevatorFourthFloorHeight", fourthFloor);
+      Preferences.initDouble("elevatorFourthFloorHeight", fourthFloor);
     }
     if (!Preferences.containsKey("elevatorkp")) {
       Preferences.initDouble("elevatorkp", elevatorkp);
-  }
-  
-  if (!Preferences.containsKey("elevatorki")) {
-      Preferences.initDouble("elevatorki", elevatorki);
-  }
-  
-  if (!Preferences.containsKey("elevatorkd")) {
-      Preferences.initDouble("elevatorkd", elevatorkd);
-  }
-  
-  if (!Preferences.containsKey("elevatorks")) {
-      Preferences.initDouble("elevatorks", elevatorks);
-  }
-  
-  if (!Preferences.containsKey("elevatorkg")) {
-      Preferences.initDouble("elevatorkg", elevatorkg);
-  }
-  
-  if (!Preferences.containsKey("elevatorkv")) {
-      Preferences.initDouble("elevatorkv", elevatorkv);
-  }
-  
-  if (!Preferences.containsKey("elevatorka")) {
-      Preferences.initDouble("elevatorka", elevatorka);
-  }
-  
-  if (!Preferences.containsKey("elevatorMaxAccleration")) {
-      Preferences.initDouble("elevatorMaxAccleration", elevatorMaxAcceleration);
-  }
-  
-  if (!Preferences.containsKey("elevatorMaxVelocity")) {
-      Preferences.initDouble("elevatorMaxVelocity", elevatorMaxVelocity);
-  }
+    }
 
-    this.elevatorEncoder = new Encoder(Constants.Elevator.encoderAID, Constants.Elevator.encoderBID, false, Encoder.EncodingType.k2X);//may need reversing
+    if (!Preferences.containsKey("elevatorki")) {
+      Preferences.initDouble("elevatorki", elevatorki);
+    }
+
+    if (!Preferences.containsKey("elevatorkd")) {
+      Preferences.initDouble("elevatorkd", elevatorkd);
+    }
+
+    if (!Preferences.containsKey("elevatorks")) {
+      Preferences.initDouble("elevatorks", elevatorks);
+    }
+
+    if (!Preferences.containsKey("elevatorkg")) {
+      Preferences.initDouble("elevatorkg", elevatorkg);
+    }
+
+    if (!Preferences.containsKey("elevatorkv")) {
+      Preferences.initDouble("elevatorkv", elevatorkv);
+    }
+
+    if (!Preferences.containsKey("elevatorka")) {
+      Preferences.initDouble("elevatorka", elevatorka);
+    }
+
+    if (!Preferences.containsKey("elevatorMaxAccleration")) {
+      Preferences.initDouble("elevatorMaxAccleration", elevatorMaxAcceleration);
+    }
+
+    if (!Preferences.containsKey("elevatorMaxVelocity")) {
+      Preferences.initDouble("elevatorMaxVelocity", elevatorMaxVelocity);
+    }
+
+    this.elevatorEncoder = new Encoder(Constants.Elevator.encoderAID, Constants.Elevator.encoderBID, false,
+        Encoder.EncodingType.k2X);// may need reversing
     this.topElevatorLimitSwitch = new DigitalInput(Constants.Elevator.topLimitSwitchID);
     this.topElevatorLimitSwitch = new DigitalInput(Constants.Elevator.bottomLimitSwitchID);
 
@@ -134,20 +133,22 @@ public class ElevatorSubsystem extends SubsystemBase {
     this.followerConfig = new SparkMaxConfig();
     this.followerConfig.follow(elevatorMotorLeader);
     this.followerConfig.inverted(true);
-    this.elevatorMotorFollower.configure(followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    this.elevatorMotorFollower.configure(followerConfig, ResetMode.kNoResetSafeParameters,
+        PersistMode.kPersistParameters);
 
-    this.trapezoidConstraints = 
-      new TrapezoidProfile.Constraints(Constants.Elevator.maxVelocity, Constants.Elevator.maxAcceleration);
+    this.trapezoidConstraints = new TrapezoidProfile.Constraints(Constants.Elevator.maxVelocity,
+        Constants.Elevator.maxAcceleration);
 
     this.goal = new TrapezoidProfile.State();
 
-    this.elevatorFeedforward = new ElevatorFeedforward(Constants.Elevator.ks, Constants.Elevator.kg, Constants.Elevator.kv, Constants.Elevator.ka);
+    this.elevatorFeedforward = new ElevatorFeedforward(Constants.Elevator.ks, Constants.Elevator.kg,
+        Constants.Elevator.kv, Constants.Elevator.ka);
 
-    this.profiledPIDController = new ProfiledPIDController(Constants.Elevator.PID.kp, Constants.Elevator.PID.ki, Constants.Elevator.PID.kd, this.trapezoidConstraints);
+    this.profiledPIDController = new ProfiledPIDController(Constants.Elevator.PID.kp, Constants.Elevator.PID.ki,
+        Constants.Elevator.PID.kd, this.trapezoidConstraints);
     this.profiledPIDController.setGoal(0);
     this.profiledPIDController.setTolerance(Constants.Elevator.tolerance);
   }
-
 
   public void loadPreferences() {
     if (Preferences.getDouble("algaeOffset", algaeOffset) != algaeOffset) {
@@ -162,13 +163,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     if (Preferences.getDouble("elevatorFourthFloorHeight", fourthFloor) != fourthFloor) {
       fourthFloor = Preferences.getDouble("elevatorFourthFloorHeight", fourthFloor);
     }
-    if (Preferences.getDouble("elevatorMaxAccleration", elevatorMaxAcceleration) != elevatorMaxAcceleration || Preferences.getDouble("elevatorMaxVelocity", elevatorMaxVelocity) != elevatorMaxVelocity) {
+    if (Preferences.getDouble("elevatorMaxAccleration", elevatorMaxAcceleration) != elevatorMaxAcceleration
+        || Preferences.getDouble("elevatorMaxVelocity", elevatorMaxVelocity) != elevatorMaxVelocity) {
       elevatorMaxAcceleration = Preferences.getDouble("elevatorMaxAccleration", elevatorMaxAcceleration);
       elevatorMaxVelocity = Preferences.getDouble("elevatorMaxVelocity", elevatorMaxVelocity);
       trapezoidConstraints = new TrapezoidProfile.Constraints(elevatorMaxVelocity, elevatorMaxAcceleration);
       profiledPIDController = new ProfiledPIDController(elevatorkp, elevatorki, elevatorkd, trapezoidConstraints);
     }
-    if (Preferences.getDouble("elevatorka", elevatorka) != elevatorka || Preferences.getDouble("elevatorkv", elevatorkv) != elevatorkv || Preferences.getDouble("elevatorkg", elevatorkg) != elevatorkg || Preferences.getDouble("elevatorks", elevatorks) != elevatorks) {
+    if (Preferences.getDouble("elevatorka", elevatorka) != elevatorka
+        || Preferences.getDouble("elevatorkv", elevatorkv) != elevatorkv
+        || Preferences.getDouble("elevatorkg", elevatorkg) != elevatorkg
+        || Preferences.getDouble("elevatorks", elevatorks) != elevatorks) {
       elevatorka = Preferences.getDouble("elevatorka", elevatorka);
       elevatorkv = Preferences.getDouble("elevatorkv", elevatorkv);
       elevatorkg = Preferences.getDouble("elevatorkg", elevatorkg);
@@ -194,13 +199,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     double height = height_in_ticks / Constants.Elevator.encoderTicksPerRotation;
     SmartDashboard.putNumber("elevator adjusted height", height);
 
-    double elevatorFloorVoltage = profiledPIDController.calculate(height) + elevatorFeedforward.calculate(profiledPIDController.getSetpoint().velocity);
+    double elevatorFloorVoltage = profiledPIDController.calculate(height)
+        + elevatorFeedforward.calculate(profiledPIDController.getSetpoint().velocity);
     SmartDashboard.putNumber("elevator setpoint", profiledPIDController.getSetpoint().position);
     SmartDashboard.putNumber("elevator floor voltage", elevatorFloorVoltage);
 
     return elevatorFloorVoltage;
   }
- 
+
   public void stopElevator() {
     elevatorMotorLeader.set(0);
   }
@@ -208,7 +214,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public double floorTargetToHeight(FloorTarget target) {
     switch (target) {
       case GROUND_FLOOR:
-        return Constants.Elevator.groundFloor; //ground floor and top floor shouldn't be changed
+        return Constants.Elevator.groundFloor; // ground floor and top floor shouldn't be changed
       case ALGAE_FLOOR:
         return Constants.Elevator.algaeFloor;
       case SECOND_FLOOR:
@@ -225,15 +231,24 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
-   //check if at floor
+  // check if at floor
   public boolean ifAtFloor(Double target) {
+    double currentPosition = elevatorEncoder.get() / Constants.Elevator.encoderTicksPerRotation;
     boolean value = false;
-    if (elevatorEncoder.get()/Constants.Elevator.encoderTicksPerRotation < target + Constants.Elevator.deadband && elevatorEncoder.get()/Constants.Elevator.encoderTicksPerRotation > target - Constants.Elevator.deadband) {
+    if (currentPosition < target + Constants.Elevator.deadband
+        && currentPosition > target - Constants.Elevator.deadband) {
       value = true;
     }
+
+    // Debug logging for auto troubleshooting
+    SmartDashboard.putNumber("elevator_target", target);
+    SmartDashboard.putNumber("elevator_current", currentPosition);
+    SmartDashboard.putNumber("elevator_deadband", Constants.Elevator.deadband);
+    SmartDashboard.putBoolean("elevator_at_target", value);
+
     return value;
   }
- 
+
   public void setTarget(FloorTarget target) {
     floor_target = target;
   }
@@ -251,19 +266,23 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorMotorLeader.setVoltage(voltage);
     SmartDashboard.putNumber("elevatorVoltage", voltage);
   }
-        public void setDemoModeConstraints() {
-        double demoMaxVelocity = Constants.Elevator.demoMaxVelocity; // Define this in Constants
-        double demoMaxAcceleration = Constants.Elevator.demoMaxAcceleration; // Define this in Constants
-        this.trapezoidConstraints = new TrapezoidProfile.Constraints(demoMaxVelocity, demoMaxAcceleration);
-        this.profiledPIDController = new ProfiledPIDController(elevatorkp, elevatorki, elevatorkd, this.trapezoidConstraints);
-    }
+
+  public void setDemoModeConstraints() {
+    double demoMaxVelocity = Constants.Elevator.demoMaxVelocity; // Define this in Constants
+    double demoMaxAcceleration = Constants.Elevator.demoMaxAcceleration; // Define this in Constants
+    this.trapezoidConstraints = new TrapezoidProfile.Constraints(demoMaxVelocity, demoMaxAcceleration);
+    this.profiledPIDController = new ProfiledPIDController(elevatorkp, elevatorki, elevatorkd,
+        this.trapezoidConstraints);
+  }
+
   @Override
   public void periodic() {
     goToPosition();
-   // loadPreferences();//to be commented out
-    //This method will be called once per scheduler run
+    // loadPreferences();//to be commented out
+    // This method will be called once per scheduler run
     SmartDashboard.putNumber("elevator encoder reading", elevatorEncoder.get());
-    SmartDashboard.putNumber("elevator adjusted encoder reading", elevatorEncoder.get()/Constants.Elevator.encoderTicksPerRotation);
+    SmartDashboard.putNumber("elevator adjusted encoder reading",
+        elevatorEncoder.get() / Constants.Elevator.encoderTicksPerRotation);
 
     SmartDashboard.putBoolean("elevatorAtGroundFloor", ifAtFloor(Constants.Elevator.groundFloor));
     SmartDashboard.putBoolean("elevatorAtSecondFloor", ifAtFloor(Constants.Elevator.secondFloor));
@@ -274,9 +293,3 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("elevatorFloorTarget", floorTargetToHeight(floor_target));
   }
 }
- 
-
-
-
-
-

@@ -7,6 +7,8 @@ package frc.robot.subsystems.swervedrive;
 import static edu.wpi.first.units.Units.Meter;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
@@ -17,12 +19,19 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -63,6 +72,11 @@ public class SwerveSubsystem extends SubsystemBase {
   private final boolean visionDriveTest = false;
 
   private Vision vision;
+
+  // Struct publishers for AdvantageScope 3D field visualization
+  private StructPublisher<Pose3d> robotPose3dPublisher;
+  private StructPublisher<ChassisSpeeds> robotVelocityPublisher;
+  private edu.wpi.first.networktables.StructArrayPublisher<SwerveModuleState> swerveModuleStatesPublisher;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -106,6 +120,9 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive.stopOdometryThread();
     }
     setupPathPlanner();
+
+    // Initialize struct publishers for AdvantageScope 3D field visualization
+    initializeStructPublishers();
   }
 
   /**
@@ -136,6 +153,9 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive.updateOdometry();
       vision.updatePoseEstimation(swerveDrive);
     }
+
+    // Log data for AdvantageScope 3D field visualization
+    log3DFieldData();
   }
 
   @Override
@@ -712,5 +732,53 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public SwerveDrive getSwerveDrive() {
     return swerveDrive;
+  }
+
+  /**
+   * Initialize struct publishers for AdvantageScope 3D field visualization.
+   * Uses the modern struct format for seamless 3D field visualization.
+   */
+  private void initializeStructPublishers() {
+    NetworkTableInstance ntInstance = NetworkTableInstance.getDefault();
+
+    // Create struct publishers for 3D field visualization
+    robotPose3dPublisher = ntInstance
+        .getStructTopic("RobotPose3D", Pose3d.struct)
+        .publish();
+
+    robotVelocityPublisher = ntInstance
+        .getStructTopic("RobotVelocity", ChassisSpeeds.struct)
+        .publish();
+
+    swerveModuleStatesPublisher = ntInstance
+        .getStructArrayTopic("SwerveModuleStates", SwerveModuleState.struct)
+        .publish();
+  }
+  
+ public void addVisionMeasurement(Pose2d pose, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+    swerveDrive.addVisionMeasurement(pose, timestampSeconds, stdDevs);
+}
+  /**
+   * Log data for AdvantageScope 3D field visualization.
+   * Uses the modern struct format for seamless 3D field visualization.
+   */
+  private void log3DFieldData() {
+    // Log robot pose as 3D pose for 3D field visualization
+    Pose2d robotPose2d = swerveDrive.getPose();
+    Pose3d robotPose3d = new Pose3d(
+        robotPose2d.getX(),
+        robotPose2d.getY(),
+        0.0, // Robot is on the ground
+        new Rotation3d(0, 0, robotPose2d.getRotation().getRadians()));
+
+    // Publish using modern struct format for AdvantageScope
+    robotPose3dPublisher.set(robotPose3d);
+    robotVelocityPublisher.set(swerveDrive.getRobotVelocity());
+    swerveModuleStatesPublisher.set(swerveDrive.getStates());
+
+    // Log vision data for 3D field visualization
+    if (vision != null) {
+      vision.logVisionData();
+    }
   }
 }
