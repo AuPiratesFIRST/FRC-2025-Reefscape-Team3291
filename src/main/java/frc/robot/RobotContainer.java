@@ -267,7 +267,7 @@ public class RobotContainer {
       controller1.povRight().toggleOnTrue(intakeCMD);
       //elevatorSubsystem.setDefaultCommand(goToFloor);
       //intakePivotSubsystem.setDefaultCommand(goToFloor);
-      elevatorSubsystem.setDefaultCommand(paradeLoop);
+      //elevatorSubsystem.setDefaultCommand(paradeLoop);
       //intakePivotSubsystem.setDefaultCommand(paradeLoop);
       intakeMotorSubsystem.setDefaultCommand(eSpitCMD);
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
