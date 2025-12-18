@@ -39,10 +39,6 @@ public class ChaseTag2 extends Command {
     );
 
     private Pose2d targetPose = new Pose2d();
-    private Pose2d startingPose;
-    private double startTime;
-    private boolean hasValidTarget = false;
-    private double tagYawRad = 0.0;  // Remember tag orientation
 
     /**
      * Creates a new ChaseTag2 command.
@@ -95,9 +91,7 @@ public class ChaseTag2 extends Command {
 
     @Override
     public void initialize() {
-        startTime = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
-        startingPose = drivebase.getPose();
-        hasValidTarget = false;
+        Pose2d startingPose = drivebase.getPose();
 
         xController.reset(startingPose.getX());
         yController.reset(startingPose.getY());
@@ -193,7 +187,6 @@ public class ChaseTag2 extends Command {
         SmartDashboard.putNumber("ChaseTag2/X Error", xController.getPositionError());
         SmartDashboard.putNumber("ChaseTag2/Y Error", yController.getPositionError());
         SmartDashboard.putNumber("ChaseTag2/Omega Error", omegaController.getPositionError());
-        
     }
 
     @Override

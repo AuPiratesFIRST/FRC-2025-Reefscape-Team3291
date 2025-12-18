@@ -40,7 +40,7 @@ public class VisionSim {
     private final PhotonPoseEstimator photonEstimator;
     private final Field2d field2d = new Field2d();
     private final Field2d estimatedPoseField = new Field2d();
-    private Matrix<N3, N1> curStdDevs;
+    private Matrix<N3, N1> curStdDevs = VisionConstants.SINGLE_TAG_STD_DEVS;
     
     private PhotonCameraSim cameraSim;
     private VisionSystemSim visionSim;

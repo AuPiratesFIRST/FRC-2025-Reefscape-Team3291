@@ -32,7 +32,6 @@ public class ChaseTagCommand extends Command {
     private final ProfiledPIDController yController;
     private final ProfiledPIDController omegaController;
 
-    private PhotonTrackedTarget lastTarget;
     private final Transform3d TAG_TO_GOAL = new Transform3d(
         new Translation3d(1.5, 0.0, 0.0), 
         new Rotation3d(0.0, 0.0, Math.PI));
@@ -88,7 +87,6 @@ public class ChaseTagCommand extends Command {
 
     @Override
     public void initialize() {
-        lastTarget = null;
         Pose2d currentPose = drivebase.getPose();
         xController.reset(currentPose.getX());
         yController.reset(currentPose.getY());
