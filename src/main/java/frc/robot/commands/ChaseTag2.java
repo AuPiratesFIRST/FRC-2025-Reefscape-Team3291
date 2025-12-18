@@ -109,31 +109,28 @@ public class ChaseTag2 extends Command {
 
     @Override
     public void execute() {
-
         PhotonPipelineResult result = visionSubsystem.getCamera().getLatestResult();
         if (!result.hasTargets()) {
-        SmartDashboard.putString("ChaseTag2/TargetStatus", "No Targets");
-        drivebase.drive(new ChassisSpeeds());
-        return;
-}
-SmartDashboard.putString("ChaseTag2/TargetStatus", "Target Found");
-
-       
+            SmartDashboard.putString("ChaseTag2/TargetStatus", "No Targets");
+            drivebase.drive(new ChassisSpeeds());
+            return;
+        }
+        SmartDashboard.putString("ChaseTag2/TargetStatus", "Target Found");
 
         // Find the best target (smallest pose ambiguity, using constants for validation)
         Optional<PhotonTrackedTarget> targetOpt = result.getTargets().stream()
-        .filter(VisionUtils::isTargetValid)
-        .min((t1, t2) -> Double.compare(t1.getPoseAmbiguity(), t2.getPoseAmbiguity()));
+            .filter(VisionUtils::isTargetValid)
+            .min((t1, t2) -> Double.compare(t1.getPoseAmbiguity(), t2.getPoseAmbiguity()));
     
-    if (targetOpt.isEmpty()) {
-        SmartDashboard.putString("ChaseTag2/TargetStatus", "No Valid Target");
-        drivebase.drive(new ChassisSpeeds());
-        return;
-    }
+        if (targetOpt.isEmpty()) {
+            SmartDashboard.putString("ChaseTag2/TargetStatus", "No Valid Target");
+            drivebase.drive(new ChassisSpeeds());
+            return;
+        }
     
         PhotonTrackedTarget target = targetOpt.get();
         SmartDashboard.putString("ChaseTag2/TargetPose", target.getBestCameraToTarget().toString());
-         SmartDashboard.putNumber("ChaseTag2/PoseAmbiguity", target.getPoseAmbiguity());
+        SmartDashboard.putNumber("ChaseTag2/PoseAmbiguity", target.getPoseAmbiguity());
         updateGoalPosition(target);
         driveToTarget();
     }
@@ -155,6 +152,9 @@ SmartDashboard.putString("ChaseTag2/TargetStatus", "Target Found");
         // Calculate desired goal pose relative to the tag
         Pose3d goalPose3d = targetPose3d.transformBy(TAG_TO_GOAL);
         Pose2d goalPose = goalPose3d.toPose2d();
+        
+        // Store the calculated target pose for telemetry
+        this.targetPose = goalPose;
 
         // Update the PID controllers with the new goal pose
         xController.setGoal(goalPose.getX());
